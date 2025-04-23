@@ -4,7 +4,6 @@ namespace WechatOfficialAccountStatsBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use DoctrineEnhanceBundle\Repository\CommonRepositoryAware;
 use WechatOfficialAccountStatsBundle\Entity\ArticleDailySummary;
 
 /**
@@ -15,8 +14,6 @@ use WechatOfficialAccountStatsBundle\Entity\ArticleDailySummary;
  */
 class ArticleDailySummaryRepository extends ServiceEntityRepository
 {
-    use CommonRepositoryAware;
-
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, ArticleDailySummary::class);
