@@ -41,8 +41,8 @@ class SyncAdvertisingSpaceDataCommand extends Command
             $request = new GetAdvertisingSpaceDataRequest();
             $request->setAction('publisher_adpos_general');
             $request->setAccount($account);
-            $request->setPage(1);
-            $request->setPageSize(10);
+            $request->setPage('1');
+            $request->setPageSize('10');
             $request->setStartDate(Carbon::now()->weekday(1)->subDays(7));
             $request->setEndDate(Carbon::now()->weekday(6)->subDays(6));
             $result = $this->client->request($request);

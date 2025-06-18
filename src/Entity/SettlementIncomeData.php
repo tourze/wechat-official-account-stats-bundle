@@ -4,9 +4,7 @@ namespace WechatOfficialAccountStatsBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
-use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
-use Tourze\DoctrineTimestampBundle\Attribute\UpdateTimeColumn;
+use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\EasyAdmin\Attribute\Action\Deletable;
 use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
 use Tourze\EasyAdmin\Attribute\Column\ListColumn;
@@ -25,6 +23,7 @@ use WechatOfficialAccountStatsBundle\Repository\SettlementIncomeDataRepository;
 #[ORM\UniqueConstraint(name: 'wechat_official_settlement_income_data_uniq', columns: ['account_id', 'date', 'slot_id'])]
 class SettlementIncomeData
 {
+    use TimestampableAware;
     #[ListColumn(order: -1)]
     #[ExportColumn]
     #[ORM\Id]
@@ -100,20 +99,6 @@ class SettlementIncomeData
     private ?int $slotSettledRevenue = null;
 
     #[Filterable]
-    #[IndexColumn]
-    #[ListColumn(order: 98, sorter: true)]
-    #[ExportColumn]
-    #[CreateTimeColumn]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true, options: ['comment' => '创建时间'])]
-    private ?\DateTimeInterface $createTime = null;
-
-    #[UpdateTimeColumn]
-    #[ListColumn(order: 99, sorter: true)]
-    #[Filterable]
-    #[ExportColumn]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true, options: ['comment' => '更新时间'])]
-    private ?\DateTimeInterface $updateTime = null;
-
     public function getSettStatus(): ?SettlementIncomeOrderStatusEnum
     {
         return $this->settStatus;
@@ -139,43 +124,43 @@ class SettlementIncomeData
         return $this->slotSettledRevenue;
     }
 
-    public function setSlotSettledRevenue(string $slotSettledRevenue): static
+    public function setSlotSettledRevenue(?int $slotSettledRevenue): static
     {
         $this->slotSettledRevenue = $slotSettledRevenue;
 
         return $this;
     }
 
-    public function getSlotId(): ?int
+    public function getSlotId(): ?string
     {
         return $this->slotId;
     }
 
-    public function setSlotId(string $slotId): static
+    public function setSlotId(?string $slotId): static
     {
         $this->slotId = $slotId;
 
         return $this;
     }
 
-    public function getMailSendCnt(): ?int
+    public function getMailSendCnt(): ?string
     {
         return $this->mailSendCnt;
     }
 
-    public function setMailSendCnt(string $mailSendCnt): static
+    public function setMailSendCnt(?string $mailSendCnt): static
     {
         $this->mailSendCnt = $mailSendCnt;
 
         return $this;
     }
 
-    public function getSettNo(): ?int
+    public function getSettNo(): ?string
     {
         return $this->settNo;
     }
 
-    public function setSettNo(string $settNo): static
+    public function setSettNo(?string $settNo): static
     {
         $this->settNo = $settNo;
 
@@ -187,7 +172,7 @@ class SettlementIncomeData
         return $this->settledRevenue;
     }
 
-    public function setSettledRevenue(string $settledRevenue): static
+    public function setSettledRevenue(?int $settledRevenue): static
     {
         $this->settledRevenue = $settledRevenue;
 
@@ -288,25 +273,4 @@ class SettlementIncomeData
         $this->date = $date;
 
         return $this;
-    }
-
-    public function setCreateTime(?\DateTimeInterface $createdAt): void
-    {
-        $this->createTime = $createdAt;
-    }
-
-    public function getCreateTime(): ?\DateTimeInterface
-    {
-        return $this->createTime;
-    }
-
-    public function setUpdateTime(?\DateTimeInterface $updateTime): void
-    {
-        $this->updateTime = $updateTime;
-    }
-
-    public function getUpdateTime(): ?\DateTimeInterface
-    {
-        return $this->updateTime;
-    }
-}
+    }}
