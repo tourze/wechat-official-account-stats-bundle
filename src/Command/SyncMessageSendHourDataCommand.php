@@ -22,9 +22,11 @@ use WechatOfficialAccountStatsBundle\Request\GetMessageSendHourDataRequest;
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Message_analysis_data_interface.html
  */
 #[AsCronTask('1 2 * * *')]
-#[AsCommand(name: 'wechat:official-account:SyncMessageSendHourDataCommand', description: '公众号-获取消息发送分时数据')]
+#[AsCommand(name: self::NAME, description: '公众号-获取消息发送分时数据')]
 class SyncMessageSendHourDataCommand extends Command
 {
+    public const NAME = 'wechat:official-account:sync-message-send-hour-data';
+
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
@@ -50,7 +52,7 @@ class SyncMessageSendHourDataCommand extends Command
                     'date' => $date,
                     'refHour' => $item['ref_hour'],
                 ]);
-                if (!$messageSendHourData) {
+                if ($messageSendHourData === null) {
                     $messageSendHourData = new MessageSendHourData();
                     $messageSendHourData->setAccount($account);
                     $messageSendHourData->setDate($date);

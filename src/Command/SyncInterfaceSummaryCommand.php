@@ -21,9 +21,11 @@ use WechatOfficialAccountStatsBundle\Request\InterfaceSummaryDataRequest;
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Analytics_API.html
  */
 // #[AsCronTask('2 1 * * *')]
-#[AsCommand(name: 'wechat:official-account:SyncInterfaceSummaryCommand', description: '公众号-获取接口分析数据')]
+#[AsCommand(name: self::NAME, description: '公众号-获取接口分析数据')]
 class SyncInterfaceSummaryCommand extends Command
 {
+    public const NAME = 'wechat:official-account:sync-interface-summary';
+
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
@@ -67,7 +69,7 @@ class SyncInterfaceSummaryCommand extends Command
                     'account' => $account,
                     'date' => $date,
                 ]);
-                if (!$interfaceSummaryData) {
+                if ($interfaceSummaryData === null) {
                     $interfaceSummaryData = new InterfaceSummary();
                     $interfaceSummaryData->setAccount($account);
                     $interfaceSummaryData->setDate($date);

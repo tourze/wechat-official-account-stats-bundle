@@ -23,9 +23,11 @@ use WechatOfficialAccountStatsBundle\Request\GetUserShareRequest;
  */
 // 每周一跑
 #[AsCronTask('11 1 * * *')]
-#[AsCommand(name: 'wechat:official-account:SyncImageTextShareDataCommand', description: '公众号-获取图文分享转发数据')]
+#[AsCommand(name: self::NAME, description: '公众号-获取图文分享转发数据')]
 class SyncImageTextShareDataCommand extends Command
 {
+    public const NAME = 'wechat:official-account:sync-image-text-share-data';
+
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
@@ -59,7 +61,7 @@ class SyncImageTextShareDataCommand extends Command
                     'account' => $account,
                     'date' => $date,
                 ]);
-                if (!$userShare) {
+                if ($userShare === null) {
                     $userShare = new ImageTextShareData();
                     $userShare->setAccount($account);
                     $userShare->setDate($date);

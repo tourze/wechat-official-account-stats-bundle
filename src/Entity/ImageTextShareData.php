@@ -5,26 +5,16 @@ namespace WechatOfficialAccountStatsBundle\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Filter\Filterable;
-use Tourze\EasyAdmin\Attribute\Filter\Keyword;
-use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountStatsBundle\Repository\ImageTextShareDataRepository;
 
-#[AsPermission(title: '图文分享转发数据')]
-#[Deletable]
 #[ORM\Entity(repositoryClass: ImageTextShareDataRepository::class)]
 #[ORM\Table(name: 'wechat_official_image_text_share', options: ['comment' => '图文分享转发数据'])]
 #[ORM\UniqueConstraint(name: 'wechat_official_image_text_share_uniq', columns: ['account_id', 'date'])]
-class ImageTextShareData
+class ImageTextShareData implements \Stringable
 {
     use TimestampableAware;
-    #[ListColumn(order: -1)]
-    #[ExportColumn]
-    #[ORM\Id]
+            #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
     private ?int $id = 0;
@@ -34,30 +24,23 @@ class ImageTextShareData
         return $this->id;
     }
 
-    #[Keyword]
-    #[ListColumn]
-    #[ORM\ManyToOne]
+            #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Account $account;
 
-    #[ListColumn]
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+        #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
     private ?\DateTimeInterface $date = null;
 
-    #[ListColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '分享的场景'])]
+        #[ORM\Column(nullable: true, options: ['comment' => '分享的场景'])]
     private ?int $shareScene = null;
 
-    #[ListColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '分享的次数'])]
+        #[ORM\Column(nullable: true, options: ['comment' => '分享的次数'])]
     private ?int $shareCount = null;
 
-    #[ListColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '分享的人数'])]
+        #[ORM\Column(nullable: true, options: ['comment' => '分享的人数'])]
     private ?int $shareUser = null;
 
-    #[Filterable]
-    public function getShareUser(): ?int
+        public function getShareUser(): ?int
     {
         return $this->shareUser;
     }
@@ -115,4 +98,9 @@ class ImageTextShareData
         $this->date = $date;
 
         return $this;
-    }}
+    }
+    public function __toString(): string
+    {
+        return (string) $this->id;
+    }
+}

@@ -21,9 +21,11 @@ use WechatOfficialAccountStatsBundle\Request\GetUserCumulateRequest;
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/User_Analysis_Data_Interface.html
  */
 #[AsCronTask('4 3 * * *')]
-#[AsCommand(name: 'wechat:official-account:SyncUserCumulateCommand', description: '公众号-获取累计用户数据')]
+#[AsCommand(name: self::NAME, description: '公众号-获取累计用户数据')]
 class SyncUserCumulateCommand extends Command
 {
+    public const NAME = 'wechat:official-account:sync-user-cumulate';
+
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
@@ -59,7 +61,7 @@ class SyncUserCumulateCommand extends Command
                     'account' => $account,
                     'date' => $date,
                 ]);
-                if (!$cumulate) {
+                if ($cumulate === null) {
                     $cumulate = new UserCumulate();
                     $cumulate->setAccount($account);
                     $cumulate->setDate($date);

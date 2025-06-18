@@ -22,9 +22,11 @@ use WechatOfficialAccountStatsBundle\Request\MessageSendDistDataRequest;
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Message_analysis_data_interface.html
  */
 #[AsCronTask('0 12 * * *')]
-#[AsCommand(name: 'wechat:official-account:SyncMessageSendDIstDataCommand', description: '公众号-获取消息发送分布数据')]
+#[AsCommand(name: self::NAME, description: '公众号-获取消息发送分布数据')]
 class SyncMessageSendDIstDataCommand extends Command
 {
+    public const NAME = 'wechat:official-account:sync-message-send-dist-data';
+
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
@@ -49,7 +51,7 @@ class SyncMessageSendDIstDataCommand extends Command
                     'account' => $account,
                     'date' => $date,
                 ]);
-                if (!$MessageSenDistData) {
+                if ($MessageSenDistData === null) {
                     $MessageSenDistData = new MessageSenDistData();
                     $MessageSenDistData->setAccount($account);
                     $MessageSenDistData->setDate($date);

@@ -5,26 +5,16 @@ namespace WechatOfficialAccountStatsBundle\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Filter\Filterable;
-use Tourze\EasyAdmin\Attribute\Filter\Keyword;
-use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountStatsBundle\Repository\ImageTextStatisticsHourRepository;
 
-#[AsPermission(title: '图文统计分时数据')]
-#[Deletable]
 #[ORM\Entity(repositoryClass: ImageTextStatisticsHourRepository::class)]
 #[ORM\Table(name: 'wechat_official_image_text_statistics_hour', options: ['comment' => '图文统计分时数据'])]
 #[ORM\UniqueConstraint(name: 'wechat_official_image_text_statistics_hour_uniq', columns: ['account_id', 'date'])]
-class ImageTextStatisticsHour
+class ImageTextStatisticsHour implements \Stringable
 {
     use TimestampableAware;
-    #[ListColumn(order: -1)]
-    #[ExportColumn]
-    #[ORM\Id]
+            #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
     private ?int $id = 0;
@@ -34,54 +24,41 @@ class ImageTextStatisticsHour
         return $this->id;
     }
 
-    #[Keyword]
-    #[ListColumn]
-    #[ORM\ManyToOne]
+            #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Account $account;
 
-    #[ListColumn]
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+        #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
     private ?\DateTimeInterface $date = null;
 
-    #[ListColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '数据的小时'])]
+        #[ORM\Column(nullable: true, options: ['comment' => '数据的小时'])]
     private ?int $refHour = null;
 
-    #[ListColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '图文页（点击群发图文卡片进入的页面）的阅读人数'])]
+        #[ORM\Column(nullable: true, options: ['comment' => '图文页（点击群发图文卡片进入的页面）的阅读人数'])]
     private ?int $intPageReadUser = null;
 
-    #[ListColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '图文页的阅读次数'])]
+        #[ORM\Column(nullable: true, options: ['comment' => '图文页的阅读次数'])]
     private ?int $intPageReadCount = null;
 
-    #[ListColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '原文页（点击图文页“阅读原文”进入的页面）的阅读人数，无原文页时此处数据为0'])]
+        #[ORM\Column(nullable: true, options: ['comment' => '原文页（点击图文页“阅读原文”进入的页面）的阅读人数，无原文页时此处数据为0'])]
     private ?int $oriPageReadUser = null;
 
-    #[ListColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '原文页的阅读次数'])]
+        #[ORM\Column(nullable: true, options: ['comment' => '原文页的阅读次数'])]
     private ?int $oriPageReadCount = null;
 
-    #[ListColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '分享的人数'])]
+        #[ORM\Column(nullable: true, options: ['comment' => '分享的人数'])]
     private ?int $shareUser = null;
 
-    #[ListColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '分享的次数'])]
+        #[ORM\Column(nullable: true, options: ['comment' => '分享的次数'])]
     private ?int $shareCount = null;
 
-    #[ListColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '收藏的人数'])]
+        #[ORM\Column(nullable: true, options: ['comment' => '收藏的人数'])]
     private ?int $addToFavUser = null;
 
-    #[ListColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '收藏的次数'])]
+        #[ORM\Column(nullable: true, options: ['comment' => '收藏的次数'])]
     private ?int $addToFavCount = null;
 
-    #[Filterable]
-    public function getAddToFavCount(): ?int
+        public function getAddToFavCount(): ?int
     {
         return $this->addToFavCount;
     }
@@ -211,4 +188,9 @@ class ImageTextStatisticsHour
         $this->date = $date;
 
         return $this;
-    }}
+    }
+    public function __toString(): string
+    {
+        return (string) $this->id;
+    }
+}

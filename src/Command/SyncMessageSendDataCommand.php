@@ -22,9 +22,11 @@ use WechatOfficialAccountStatsBundle\Request\GetMessageSendDataRequest;
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Message_analysis_data_interface.html
  */
 #[AsCronTask('2 1 * * *')]
-#[AsCommand(name: 'wechat:official-account:SyncMessageSendDataCommand', description: '公众号-获取消息发送概况数据')]
+#[AsCommand(name: self::NAME, description: '公众号-获取消息发送概况数据')]
 class SyncMessageSendDataCommand extends Command
 {
+    public const NAME = 'wechat:official-account:sync-message-send-data';
+
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
@@ -49,7 +51,7 @@ class SyncMessageSendDataCommand extends Command
                     'account' => $account,
                     'date' => $date,
                 ]);
-                if (!$messageSendData) {
+                if ($messageSendData === null) {
                     $messageSendData = new MessageSendData();
                     $messageSendData->setAccount($account);
                     $messageSendData->setDate($date);

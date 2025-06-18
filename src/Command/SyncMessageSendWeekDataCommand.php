@@ -22,9 +22,11 @@ use WechatOfficialAccountStatsBundle\Request\GetMessageSendWeekDataRequest;
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Message_analysis_data_interface.html
  */
 #[AsCronTask('50 3 * * *')]
-#[AsCommand(name: 'wechat:official-account:SyncMessageSendWeekDataCommand', description: '公众号-获取消息发送周数据')]
+#[AsCommand(name: self::NAME, description: '公众号-获取消息发送周数据')]
 class SyncMessageSendWeekDataCommand extends Command
 {
+    public const NAME = 'wechat:official-account:sync-message-send-week-data';
+
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
@@ -49,7 +51,7 @@ class SyncMessageSendWeekDataCommand extends Command
                     'account' => $account,
                     'date' => $date,
                 ]);
-                if (!$messageSendWeekData) {
+                if ($messageSendWeekData === null) {
                     $messageSendWeekData = new MessageSendWeekData();
                     $messageSendWeekData->setAccount($account);
                     $messageSendWeekData->setDate($date);

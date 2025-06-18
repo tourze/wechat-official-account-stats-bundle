@@ -22,9 +22,11 @@ use WechatOfficialAccountStatsBundle\Request\GetUserSummaryRequest;
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/User_Analysis_Data_Interface.html
  */
 #[AsCronTask('4 3 * * *')]
-#[AsCommand(name: 'wechat:official-account:SyncUserSummaryCommand', description: '公众号-获取用户增减数据')]
+#[AsCommand(name: self::NAME, description: '公众号-获取用户增减数据')]
 class SyncUserSummaryCommand extends Command
 {
+    public const NAME = 'wechat:official-account:sync-user-summary';
+
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
@@ -56,7 +58,7 @@ class SyncUserSummaryCommand extends Command
             foreach ($response['list'] as $item) {
                 $date = Carbon::parse($item['ref_date'])->startOfDay();
                 $source = UserSummarySource::tryFrom($item['user_source']);
-                if (!$source) {
+                if ($source === null) {
                     $this->logger->error('发生未知的数据来源', [
                         'item' => $item,
                     ]);
@@ -68,7 +70,7 @@ class SyncUserSummaryCommand extends Command
                     'date' => $date,
                     'source' => $source,
                 ]);
-                if (!$summary) {
+                if ($summary === null) {
                     $summary = new UserSummary();
                     $summary->setAccount($account);
                     $summary->setDate($date);

@@ -22,9 +22,11 @@ use WechatOfficialAccountStatsBundle\Request\GetAdvertisingSpaceDataRequest;
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Ad_Analysis.html
  */
 #[AsCronTask('1 1 * * *')]
-#[AsCommand(name: 'wechat:official-account:SyncAdvertisingSpaceDataCommand', description: '公众号-获取公众号分广告位数据')]
+#[AsCommand(name: self::NAME, description: '公众号-获取公众号分广告位数据')]
 class SyncAdvertisingSpaceDataCommand extends Command
 {
+    public const NAME = 'wechat:official-account:sync-advertising-space-data';
+
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
@@ -60,7 +62,7 @@ class SyncAdvertisingSpaceDataCommand extends Command
                     'account' => $account,
                     'date' => $date,
                 ]);
-                if (!$advertisingSpaceData) {
+                if ($advertisingSpaceData === null) {
                     $advertisingSpaceData = new AdvertisingSpaceData();
                     $advertisingSpaceData->setAccount($account);
                     $advertisingSpaceData->setDate($date);

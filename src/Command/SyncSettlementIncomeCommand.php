@@ -24,9 +24,11 @@ use WechatOfficialAccountStatsBundle\Request\GetAdvertisingSpaceDataRequest;
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Ad_Analysis.html
  */
 #[AsCronTask('41 0 * * *')]
-#[AsCommand(name: 'wechat:official-account:SyncSettlementIncomeCommand', description: '公众号-获取公众号结算收入数据')]
+#[AsCommand(name: self::NAME, description: '公众号-获取公众号结算收入数据')]
 class SyncSettlementIncomeCommand extends Command
 {
+    public const NAME = 'wechat:official-account:sync-settlement-income';
+
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
@@ -64,7 +66,7 @@ class SyncSettlementIncomeCommand extends Command
                         'date' => $date,
                         'slot_id' => $date,
                     ]);
-                    if (!$settlementIncomeData) {
+                    if ($settlementIncomeData === null) {
                         $settlementIncomeData = new SettlementIncomeData();
                         $settlementIncomeData->setAccount($account);
                         $settlementIncomeData->setDate($date);

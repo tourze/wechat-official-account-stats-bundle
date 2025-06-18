@@ -5,25 +5,16 @@ namespace WechatOfficialAccountStatsBundle\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Filter\Filterable;
-use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountStatsBundle\Repository\AdvertisingSpaceDataRepository;
 
-#[AsPermission(title: '获取公众号分广告位数据')]
-#[Deletable]
 #[ORM\Entity(repositoryClass: AdvertisingSpaceDataRepository::class)]
 #[ORM\Table(name: 'wechat_official_advertising_space_data', options: ['comment' => '获取公众号分广告位数据'])]
 #[ORM\UniqueConstraint(name: 'wechat_official_advertising_space_data_uniq', columns: ['account_id', 'date'])]
-class AdvertisingSpaceData
+class AdvertisingSpaceData implements \Stringable
 {
     use TimestampableAware;
-    #[ListColumn(order: -1)]
-    #[ExportColumn]
-    #[ORM\Id]
+            #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
     private ?int $id = 0;
@@ -33,53 +24,41 @@ class AdvertisingSpaceData
         return $this->id;
     }
 
-    #[ListColumn]
-    #[ORM\ManyToOne]
+        #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Account $account;
 
-    #[ListColumn]
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+        #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
     private ?\DateTimeInterface $date = null;
 
-    #[ListColumn]
-    #[ORM\Column(options: ['comment' => '广告位类型id'])]
+        #[ORM\Column(options: ['comment' => '广告位类型id'])]
     private ?int $slotId = null;
 
-    #[ListColumn]
-    #[ORM\Column(options: ['comment' => '广告位类型名称'])]
+        #[ORM\Column(options: ['comment' => '广告位类型名称'])]
     private ?string $adSlot = null;
 
-    #[ListColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '拉取量'])]
+        #[ORM\Column(nullable: true, options: ['comment' => '拉取量'])]
     private ?int $reqSuccCount = null;
 
-    #[ListColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '曝光量'])]
+        #[ORM\Column(nullable: true, options: ['comment' => '曝光量'])]
     private ?int $exposureCount = null;
 
-    #[ListColumn]
-    #[ORM\Column(length: 60, nullable: true, options: ['comment' => '曝光率'])]
+        #[ORM\Column(length: 60, nullable: true, options: ['comment' => '曝光率'])]
     private ?string $exposureRate = null;
 
-    #[ListColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '点击量'])]
+        #[ORM\Column(nullable: true, options: ['comment' => '点击量'])]
     private ?int $clickCount = null;
 
-    #[ListColumn]
-    #[ORM\Column(length: 60, nullable: true, options: ['comment' => '点击率'])]
+        #[ORM\Column(length: 60, nullable: true, options: ['comment' => '点击率'])]
     private ?string $clickRate = null;
 
-    #[ListColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '收入(分)'])]
+        #[ORM\Column(nullable: true, options: ['comment' => '收入(分)'])]
     private ?int $income = null;
 
-    #[ListColumn]
-    #[ORM\Column(length: 70, nullable: true, options: ['comment' => '广告千次曝光收益(分)'])]
+        #[ORM\Column(length: 70, nullable: true, options: ['comment' => '广告千次曝光收益(分)'])]
     private ?string $ecpm = null;
 
-    #[Filterable]
-    public function getEcpm(): ?string
+        public function getEcpm(): ?string
     {
         return $this->ecpm;
     }
@@ -209,4 +188,9 @@ class AdvertisingSpaceData
         $this->date = $date;
 
         return $this;
-    }}
+    }
+    public function __toString(): string
+    {
+        return (string) $this->id;
+    }
+}

@@ -23,9 +23,11 @@ use WechatOfficialAccountStatsBundle\Request\GetMessageSendMonthDataRequest;
  */
 // 每个月1号执行
 #[AsCronTask('22 4 * * *')]
-#[AsCommand(name: 'wechat:official-account:SyncMessageSendMonthDataCommand', description: '公众号-获取消息发送月数据')]
+#[AsCommand(name: self::NAME, description: '公众号-获取消息发送月数据')]
 class SyncMessageSendMonthDataCommand extends Command
 {
+    public const NAME = 'wechat:official-account:sync-message-send-month-data';
+
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
@@ -50,7 +52,7 @@ class SyncMessageSendMonthDataCommand extends Command
                     'account' => $account,
                     'date' => $date,
                 ]);
-                if (!$messageSendMonthData) {
+                if ($messageSendMonthData === null) {
                     $messageSendMonthData = new MessageSendMonthData();
                     $messageSendMonthData->setAccount($account);
                     $messageSendMonthData->setDate($date);

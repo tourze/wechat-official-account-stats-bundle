@@ -22,9 +22,11 @@ use WechatOfficialAccountStatsBundle\Request\GetUserReadHourRequest;
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Graphic_Analysis_Data_Interface.html
  */
 #[AsCronTask('0 12 * * *')]
-#[AsCommand(name: 'wechat:official-account:SyncImageTextStatisticsHourCommand', description: '公众号-获取图文统计分时数据')]
+#[AsCommand(name: self::NAME, description: '公众号-获取图文统计分时数据')]
 class SyncImageTextStatisticsHourCommand extends Command
 {
+    public const NAME = 'wechat:official-account:sync-image-text-statistics-hour';
+
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
@@ -57,7 +59,7 @@ class SyncImageTextStatisticsHourCommand extends Command
                     'account' => $account,
                     'date' => $date,
                 ]);
-                if (!$imageTextStatisticsHour) {
+                if ($imageTextStatisticsHour === null) {
                     $imageTextStatisticsHour = new ImageTextStatisticsHour();
                     $imageTextStatisticsHour->setAccount($account);
                     $imageTextStatisticsHour->setDate($date);

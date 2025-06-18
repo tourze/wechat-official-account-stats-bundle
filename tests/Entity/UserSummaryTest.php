@@ -3,6 +3,7 @@
 namespace WechatOfficialAccountStatsBundle\Tests\Entity;
 
 use DateTime;
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountStatsBundle\Entity\UserSummary;
@@ -123,7 +124,7 @@ class UserSummaryTest extends TestCase
      */
     public function testSetAndGetCreateTime_withValidDateTime_returnsDateTime(): void
     {
-        $createTime = new DateTime();
+        $createTime = new DateTimeImmutable();
         $this->userSummary->setCreateTime($createTime);
 
         $this->assertSame($createTime, $this->userSummary->getCreateTime());
@@ -142,7 +143,7 @@ class UserSummaryTest extends TestCase
      */
     public function testSetAndGetUpdateTime_withValidDateTime_returnsDateTime(): void
     {
-        $updateTime = new DateTime();
+        $updateTime = new DateTimeImmutable();
         $this->userSummary->setUpdateTime($updateTime);
 
         $this->assertSame($updateTime, $this->userSummary->getUpdateTime());

@@ -5,26 +5,17 @@ namespace WechatOfficialAccountStatsBundle\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Filter\Filterable;
-use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountStatsBundle\Enum\MessageSendDataCountIntervalEnum;
 use WechatOfficialAccountStatsBundle\Repository\MessageSenDistDataRepository;
 
-#[AsPermission(title: '消息发送分布数据')]
-#[Deletable]
 #[ORM\Entity(repositoryClass: MessageSenDistDataRepository::class)]
 #[ORM\Table(name: 'wechat_official_message_send_dist_data', options: ['comment' => '消息发送分布数据'])]
 #[ORM\UniqueConstraint(name: 'wechat_official_message_send_dist_data_uniq', columns: ['account_id', 'date'])]
-class MessageSenDistData
+class MessageSenDistData implements \Stringable
 {
     use TimestampableAware;
-    #[ListColumn(order: -1)]
-    #[ExportColumn]
-    #[ORM\Id]
+            #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
     private ?int $id = 0;
@@ -34,25 +25,20 @@ class MessageSenDistData
         return $this->id;
     }
 
-    #[ListColumn]
-    #[ORM\ManyToOne]
+        #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Account $account;
 
-    #[ListColumn]
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+        #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
     private ?\DateTimeInterface $date = null;
 
-    #[ListColumn]
-    #[ORM\Column(type: Types::INTEGER, enumType: MessageSendDataCountIntervalEnum::class, options: ['comment' => '当日发送消息量分布的区间'])]
+        #[ORM\Column(type: Types::INTEGER, enumType: MessageSendDataCountIntervalEnum::class, options: ['comment' => '当日发送消息量分布的区间'])]
     private ?MessageSendDataCountIntervalEnum $countInterval = null;
 
-    #[ListColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '上行发送了（向公众号发送了）消息的用户数'])]
+        #[ORM\Column(nullable: true, options: ['comment' => '上行发送了（向公众号发送了）消息的用户数'])]
     private ?int $msgUser = null;
 
-    #[Filterable]
-    public function getCountInterval(): ?MessageSendDataCountIntervalEnum
+        public function getCountInterval(): ?MessageSendDataCountIntervalEnum
     {
         return $this->countInterval;
     }
@@ -96,4 +82,9 @@ class MessageSenDistData
         $this->date = $date;
 
         return $this;
-    }}
+    }
+    public function __toString(): string
+    {
+        return (string) $this->id;
+    }
+}

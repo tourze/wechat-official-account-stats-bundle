@@ -21,9 +21,11 @@ use WechatOfficialAccountStatsBundle\Request\InterfaceSummaryHourDataRequest;
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Analytics_API.html
  */
 // #[AsCronTask('2 1 * * *')]
-#[AsCommand(name: 'wechat:official-account:SyncInterfaceSummaryHourCommand', description: '公众号-获取接口分析数据by hour')]
+#[AsCommand(name: self::NAME, description: '公众号-获取接口分析数据by hour')]
 class SyncInterfaceSummaryHourCommand extends Command
 {
+    public const NAME = 'wechat:official-account:sync-interface-summary-hour';
+
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
@@ -68,7 +70,7 @@ class SyncInterfaceSummaryHourCommand extends Command
                     'date' => $date,
                     'refHour' => $item['ref_hour'],
                 ]);
-                if (!$interfaceSummaryHourData) {
+                if ($interfaceSummaryHourData === null) {
                     $interfaceSummaryHourData = new InterfaceSummaryHour();
                     $interfaceSummaryHourData->setAccount($account);
                     $interfaceSummaryHourData->setDate($date);

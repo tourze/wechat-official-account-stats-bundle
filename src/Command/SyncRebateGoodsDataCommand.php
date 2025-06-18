@@ -22,9 +22,11 @@ use WechatOfficialAccountStatsBundle\Request\GetAdvertisingSpaceDataRequest;
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Ad_Analysis.html
  */
 #[AsCronTask('11 3 * * *')]
-#[AsCommand(name: 'wechat:official-account:SyncRebateGoodsDataCommand', description: '公众号-获取公众号返佣商品数据')]
+#[AsCommand(name: self::NAME, description: '公众号-获取公众号返佣商品数据')]
 class SyncRebateGoodsDataCommand extends Command
 {
+    public const NAME = 'wechat:official-account:sync-rebate-goods-data';
+
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly RebateGoodsDataRepository $rebateGoodsDataRepository,
@@ -61,7 +63,7 @@ class SyncRebateGoodsDataCommand extends Command
                     'account' => $account,
                     'date' => $date,
                 ]);
-                if (!$rebateGoodsData) {
+                if ($rebateGoodsData === null) {
                     $rebateGoodsData = new RebateGoodsData();
                     $rebateGoodsData->setAccount($account);
                     $rebateGoodsData->setDate($date);

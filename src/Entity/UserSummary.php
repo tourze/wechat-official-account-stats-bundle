@@ -5,27 +5,17 @@ namespace WechatOfficialAccountStatsBundle\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Filter\Filterable;
-use Tourze\EasyAdmin\Attribute\Filter\Keyword;
-use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountStatsBundle\Enum\UserSummarySource;
 use WechatOfficialAccountStatsBundle\Repository\UserSummaryRepository;
 
-#[AsPermission(title: '用户统计数据')]
-#[Deletable]
 #[ORM\Entity(repositoryClass: UserSummaryRepository::class)]
 #[ORM\Table(name: 'wechat_official_user_summary', options: ['comment' => '用户统计数据'])]
 #[ORM\UniqueConstraint(name: 'wechat_official_user_summary_uniq', columns: ['account_id', 'date', 'source'])]
-class UserSummary
+class UserSummary implements \Stringable
 {
     use TimestampableAware;
-    #[ListColumn(order: -1)]
-    #[ExportColumn]
-    #[ORM\Id]
+            #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
     private ?int $id = 0;
@@ -35,30 +25,23 @@ class UserSummary
         return $this->id;
     }
 
-    #[Keyword]
-    #[ListColumn]
-    #[ORM\ManyToOne]
+            #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Account $account;
 
-    #[ListColumn]
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+        #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
     private ?\DateTimeInterface $date = null;
 
-    #[ListColumn]
-    #[ORM\Column(enumType: UserSummarySource::class)]
+        #[ORM\Column(enumType: UserSummarySource::class, options: ['comment' => '用户的渠道'])]
     private ?UserSummarySource $source = null;
 
-    #[ListColumn]
-    #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '新增的用户量'])]
+        #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '新增的用户量'])]
     private ?int $newUser = null;
 
-    #[ListColumn]
-    #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '取消关注的用户数量，new_user减去cancel_user即为净增用户数量'])]
+        #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '取消关注的用户数量，new_user减去cancel_user即为净增用户数量'])]
     private ?int $cancelUser = null;
 
-    #[Filterable]
-    public function getAccount(): Account
+        public function getAccount(): Account
     {
         return $this->account;
     }
@@ -116,4 +99,9 @@ class UserSummary
         $this->cancelUser = $cancelUser;
 
         return $this;
-    }}
+    }
+    public function __toString(): string
+    {
+        return (string) $this->id;
+    }
+}

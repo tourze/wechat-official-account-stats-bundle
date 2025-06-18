@@ -39,10 +39,7 @@ class GetUserSummaryRequestTest extends TestCase
         $this->request->setEndDate($endDate);
 
         $options = $this->request->getRequestOptions();
-
-        $this->assertIsArray($options);
         $this->assertArrayHasKey('json', $options);
-        $this->assertIsArray($options['json']);
         $this->assertArrayHasKey('begin_date', $options['json']);
         $this->assertArrayHasKey('end_date', $options['json']);
         $this->assertSame('2023-01-01', $options['json']['begin_date']);
@@ -97,7 +94,6 @@ class GetUserSummaryRequestTest extends TestCase
         $options = $this->request->getRequestOptions();
 
         // 即使日期范围超出，请求选项仍然会正确生成
-        $this->assertIsArray($options);
         $this->assertArrayHasKey('json', $options);
         $this->assertSame('2023-01-01', $options['json']['begin_date']);
         $this->assertSame('2023-01-15', $options['json']['end_date']);
@@ -118,7 +114,6 @@ class GetUserSummaryRequestTest extends TestCase
         $options = $this->request->getRequestOptions();
 
         // 即使日期顺序不正确，请求选项仍然会生成
-        $this->assertIsArray($options);
         $this->assertArrayHasKey('json', $options);
         $this->assertSame('2023-01-10', $options['json']['begin_date']);
         $this->assertSame('2023-01-05', $options['json']['end_date']);

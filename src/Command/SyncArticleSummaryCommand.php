@@ -22,9 +22,11 @@ use WechatOfficialAccountStatsBundle\Request\GetArticleSummaryRequest;
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Graphic_Analysis_Data_Interface.html
  */
 #[AsCronTask('0 12 * * *')]
-#[AsCommand(name: 'wechat:official-account:SyncArticleSummaryCommand', description: '公众号-获取图文群发每日数据')]
+#[AsCommand(name: self::NAME, description: '公众号-获取图文群发每日数据')]
 class SyncArticleSummaryCommand extends Command
 {
+    public const NAME = 'wechat:official-account:sync-article-summary';
+
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
@@ -58,7 +60,7 @@ class SyncArticleSummaryCommand extends Command
                     'date' => $date,
                     'msgId' => $item['msgId'],
                 ]);
-                if (!$articleSummary) {
+                if ($articleSummary === null) {
                     $articleSummary = new ArticleDailySummary();
                     $articleSummary->setAccount($account);
                     $articleSummary->setDate($date);

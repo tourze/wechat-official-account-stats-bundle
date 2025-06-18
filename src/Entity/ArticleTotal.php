@@ -5,26 +5,16 @@ namespace WechatOfficialAccountStatsBundle\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
-use Tourze\EasyAdmin\Attribute\Action\Deletable;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Filter\Filterable;
-use Tourze\EasyAdmin\Attribute\Filter\Keyword;
-use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountStatsBundle\Repository\ArticleTotalRepository;
 
-#[AsPermission(title: '获取图文群发总数据')]
-#[Deletable]
 #[ORM\Entity(repositoryClass: ArticleTotalRepository::class)]
 #[ORM\Table(name: 'wechat_official_article_total', options: ['comment' => '获取图文群发总数据'])]
 #[ORM\UniqueConstraint(name: 'wechat_official_article_total_uniq', columns: ['account_id', 'date', 'stat_date'])]
-class ArticleTotal
+class ArticleTotal implements \Stringable
 {
     use TimestampableAware;
-    #[ListColumn(order: -1)]
-    #[ExportColumn]
-    #[ORM\Id]
+            #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
     private ?int $id = 0;
@@ -34,25 +24,20 @@ class ArticleTotal
         return $this->id;
     }
 
-    #[ListColumn]
-    #[ORM\ManyToOne]
+        #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Account $account;
 
-    #[ListColumn]
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+        #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
     private ?\DateTimeInterface $date = null;
 
-    #[ListColumn]
-    #[ORM\Column(length: 60, nullable: true, options: ['comment' => '这里的msgid实际上是由msgid和index组成'])]
+        #[ORM\Column(length: 60, nullable: true, options: ['comment' => '这里的msgid实际上是由msgid和index组成'])]
     private ?string $msgId = null;
 
-    #[Keyword]
-    #[ListColumn]
-    #[ORM\Column(length: 60, nullable: true, options: ['comment' => '图文消息的标题'])]
+            #[ORM\Column(length: 60, nullable: true, options: ['comment' => '图文消息的标题'])]
     private ?string $title = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE, options: ['comment' => '统计的日期，在getarticletotal接口中，ref_date指的是文章群发出日期， 而stat_date是数据统计日期'])]
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '统计的日期，在getarticletotal接口中，ref_date指的是文章群发出日期， 而stat_date是数据统计日期'])]
     private ?\DateTimeInterface $statDate = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '送达人数，一般约等于总粉丝数（需排除黑名单或其他异常情况下无法收到消息的粉丝）'])]
@@ -130,8 +115,7 @@ class ArticleTotal
     #[ORM\Column(nullable: true, options: ['comment' => '从其他来源分享的总数'])]
     private ?int $feedShareFromOtherCnt = null;
 
-    #[Filterable]
-    public function getFeedShareFromOtherCnt(): ?int
+        public function getFeedShareFromOtherCnt(): ?int
     {
         return $this->feedShareFromOtherCnt;
     }
@@ -489,4 +473,9 @@ class ArticleTotal
         $this->date = $date;
 
         return $this;
-    }}
+    }
+    public function __toString(): string
+    {
+        return (string) $this->id;
+    }
+}
