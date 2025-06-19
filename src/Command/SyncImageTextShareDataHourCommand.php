@@ -2,7 +2,7 @@
 
 namespace WechatOfficialAccountStatsBundle\Command;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -43,8 +43,8 @@ class SyncImageTextShareDataHourCommand extends Command
         foreach ($this->accountRepository->findBy(['valid' => true]) as $account) {
             $request = new GetUserShareHourRequest();
             $request->setAccount($account);
-            $request->setBeginDate(Carbon::now()->subDays());
-            $request->setEndDate(Carbon::now()->subDays());
+            $request->setBeginDate(CarbonImmutable::now()->subDays());
+            $request->setEndDate(CarbonImmutable::now()->subDays());
             $response = $this->client->request($request);
             if (!isset($response['list'])) {
                 $this->logger->error('获取图文分享转发分时数据发生错误', [
@@ -55,7 +55,7 @@ class SyncImageTextShareDataHourCommand extends Command
             }
 
             foreach ($response['list'] as $item) {
-                $date = Carbon::parse($item['ref_date']);
+                $date = CarbonImmutable::parse($item['ref_date']);
                 $userShareHour = $this->imageTextShareDataHourRepository->findOneBy([
                     'account' => $account,
                     'date' => $date,

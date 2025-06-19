@@ -2,7 +2,7 @@
 
 namespace WechatOfficialAccountStatsBundle\Command;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -45,8 +45,8 @@ class SyncAdvertisingSpaceDataCommand extends Command
             $request->setAccount($account);
             $request->setPage('1');
             $request->setPageSize('10');
-            $request->setStartDate(Carbon::now()->weekday(1)->subDays(7));
-            $request->setEndDate(Carbon::now()->weekday(6)->subDays(6));
+            $request->setStartDate(CarbonImmutable::now()->weekday(1)->subDays(7));
+            $request->setEndDate(CarbonImmutable::now()->weekday(6)->subDays(6));
             $result = $this->client->request($request);
             if (!isset($result['list'])) {
                 $this->logger->error('获取公众号分广告位数据错误', [
@@ -57,7 +57,7 @@ class SyncAdvertisingSpaceDataCommand extends Command
             }
 
             foreach ($result['list'] as $item) {
-                $date = Carbon::parse($item['date']);
+                $date = CarbonImmutable::parse($item['date']);
                 $advertisingSpaceData = $this->advertisingSpaceDataRepository->findOneBy([
                     'account' => $account,
                     'date' => $date,

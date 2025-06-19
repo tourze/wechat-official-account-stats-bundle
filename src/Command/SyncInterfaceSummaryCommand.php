@@ -2,7 +2,7 @@
 
 namespace WechatOfficialAccountStatsBundle\Command;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -39,8 +39,8 @@ class SyncInterfaceSummaryCommand extends Command
     protected function configure(): void
     {
         $this->setDescription('获取接口分析数据')
-            ->addArgument('startTime', InputArgument::OPTIONAL, 'order start time', Carbon::now()->subDay()->startOfDay()->format('Y-m-d'))
-            ->addArgument('endTime', InputArgument::OPTIONAL, 'order end time', Carbon::now()->subDay()->endOfDay()->format('Y-m-d'));
+            ->addArgument('startTime', InputArgument::OPTIONAL, 'order start time', CarbonImmutable::now()->subDay()->startOfDay()->format('Y-m-d'))
+            ->addArgument('endTime', InputArgument::OPTIONAL, 'order end time', CarbonImmutable::now()->subDay()->endOfDay()->format('Y-m-d'));
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -48,8 +48,8 @@ class SyncInterfaceSummaryCommand extends Command
         $startTimeString = $input->getArgument('startTime');
         $endTimeString = $input->getArgument('endTime');
 
-        $startTime = Carbon::parse($startTimeString);
-        $endTime = Carbon::parse($endTimeString);
+        $startTime = CarbonImmutable::parse($startTimeString);
+        $endTime = CarbonImmutable::parse($endTimeString);
         // 判断开始时间和结束时间之间的跨度
         if ($startTime->diffInDays($endTime) > 30) {
             $output->writeln('开始时间和结束时间的跨度不能超过 30 天');
@@ -64,7 +64,7 @@ class SyncInterfaceSummaryCommand extends Command
             $request->setEndDate($endTime);
             $response = $this->client->request($request);
             foreach ($response['list'] as $item) {
-                $date = Carbon::parse($item['ref_date']);
+                $date = CarbonImmutable::parse($item['ref_date']);
                 $interfaceSummaryData = $this->interfaceSummaryRepository->findOneBy([
                     'account' => $account,
                     'date' => $date,

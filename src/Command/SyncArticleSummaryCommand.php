@@ -2,7 +2,7 @@
 
 namespace WechatOfficialAccountStatsBundle\Command;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -42,8 +42,8 @@ class SyncArticleSummaryCommand extends Command
         foreach ($this->accountRepository->findBy(['valid' => true]) as $account) {
             $request = new GetArticleSummaryRequest();
             $request->setAccount($account);
-            $request->setBeginDate(Carbon::now()->subDays());
-            $request->setEndDate(Carbon::now()->subDays());
+            $request->setBeginDate(CarbonImmutable::now()->subDays());
+            $request->setEndDate(CarbonImmutable::now()->subDays());
             $response = $this->client->request($request);
             if (!isset($response['list'])) {
                 $this->logger->error('获取累计用户数据发生错误', [
@@ -54,7 +54,7 @@ class SyncArticleSummaryCommand extends Command
             }
 
             foreach ($response['list'] as $item) {
-                $date = Carbon::parse($item['ref_date'])->startOfDay();
+                $date = CarbonImmutable::parse($item['ref_date'])->startOfDay();
                 $articleSummary = $this->articleSummaryRepository->findOneBy([
                     'account' => $account,
                     'date' => $date,

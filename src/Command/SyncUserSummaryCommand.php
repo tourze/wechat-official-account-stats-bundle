@@ -2,7 +2,6 @@
 
 namespace WechatOfficialAccountStatsBundle\Command;
 
-use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -56,7 +55,7 @@ class SyncUserSummaryCommand extends Command
             }
 
             foreach ($response['list'] as $item) {
-                $date = Carbon::parse($item['ref_date'])->startOfDay();
+                $date = CarbonImmutable::parse($item['ref_date'])->startOfDay();
                 $source = UserSummarySource::tryFrom($item['user_source']);
                 if ($source === null) {
                     $this->logger->error('发生未知的数据来源', [

@@ -2,7 +2,7 @@
 
 namespace WechatOfficialAccountStatsBundle\Command;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -42,11 +42,11 @@ class SyncMessageSendHourDataCommand extends Command
         foreach ($this->accountRepository->findBy(['valid' => true]) as $account) {
             $request = new GetMessageSendHourDataRequest();
             $request->setAccount($account);
-            $request->setBeginDate(Carbon::now()->subDays());
-            $request->setEndDate(Carbon::now()->subDays());
+            $request->setBeginDate(CarbonImmutable::now()->subDays());
+            $request->setEndDate(CarbonImmutable::now()->subDays());
             $response = $this->client->request($request);
             foreach ($response['list'] as $item) {
-                $date = Carbon::parse($item['ref_date']);
+                $date = CarbonImmutable::parse($item['ref_date']);
                 $messageSendHourData = $this->messageSendHourDataRepository->findOneBy([
                     'account' => $account,
                     'date' => $date,

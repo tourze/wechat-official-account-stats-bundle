@@ -2,7 +2,7 @@
 
 namespace WechatOfficialAccountStatsBundle\Command;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -47,8 +47,8 @@ class SyncSettlementIncomeCommand extends Command
             $request->setAccount($account);
             $request->setPage('1');
             $request->setPageSize('10');
-            $request->setStartDate(Carbon::now()->weekday(1)->subDays(7));
-            $request->setEndDate(Carbon::now()->weekday(6)->subDays(6));
+            $request->setStartDate(CarbonImmutable::now()->weekday(1)->subDays(7));
+            $request->setEndDate(CarbonImmutable::now()->weekday(6)->subDays(6));
             $result = $this->client->request($request);
             if (!isset($result['list'])) {
                 $this->logger->error('获取公众号结算收入数据发生错误', [
@@ -59,7 +59,7 @@ class SyncSettlementIncomeCommand extends Command
             }
 
             foreach ($result['settlement_list'] as $item) {
-                $date = Carbon::parse($item['date']);
+                $date = CarbonImmutable::parse($item['date']);
                 foreach ($item['slot_revenue'] as $value) {
                     $settlementIncomeData = $this->settlementIncomeDataRepository->findOneBy([
                         'account' => $account,

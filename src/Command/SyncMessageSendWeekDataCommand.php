@@ -2,7 +2,7 @@
 
 namespace WechatOfficialAccountStatsBundle\Command;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -42,11 +42,11 @@ class SyncMessageSendWeekDataCommand extends Command
         foreach ($this->accountRepository->findBy(['valid' => true]) as $account) {
             $request = new GetMessageSendWeekDataRequest();
             $request->setAccount($account);
-            $request->setBeginDate(Carbon::now()->weekday(1)->subDays(7));
-            $request->setEndDate(Carbon::now()->weekday(6)->subDays(6));
+            $request->setBeginDate(CarbonImmutable::now()->weekday(1)->subDays(7));
+            $request->setEndDate(CarbonImmutable::now()->weekday(6)->subDays(6));
             $response = $this->client->request($request);
             foreach ($response['list'] as $item) {
-                $date = Carbon::parse($item['ref_date']);
+                $date = CarbonImmutable::parse($item['ref_date']);
                 $messageSendWeekData = $this->messageSendWeekDataRepository->findOneBy([
                     'account' => $account,
                     'date' => $date,

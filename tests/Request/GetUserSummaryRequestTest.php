@@ -2,7 +2,7 @@
 
 namespace WechatOfficialAccountStatsBundle\Tests\Request;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use PHPUnit\Framework\TestCase;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountStatsBundle\Request\GetUserSummaryRequest;
@@ -32,8 +32,8 @@ class GetUserSummaryRequestTest extends TestCase
      */
     public function testGetRequestOptions_withValidDates_returnsCorrectOptions(): void
     {
-        $beginDate = Carbon::create(2023, 1, 1);
-        $endDate = Carbon::create(2023, 1, 7);
+        $beginDate = CarbonImmutable::create(2023, 1, 1);
+        $endDate = CarbonImmutable::create(2023, 1, 7);
 
         $this->request->setBeginDate($beginDate);
         $this->request->setEndDate($endDate);
@@ -51,7 +51,7 @@ class GetUserSummaryRequestTest extends TestCase
      */
     public function testSetAndGetBeginDate_withValidDate_returnsDate(): void
     {
-        $beginDate = Carbon::create(2023, 1, 1);
+        $beginDate = CarbonImmutable::create(2023, 1, 1);
         $this->request->setBeginDate($beginDate);
 
         $this->assertSame($beginDate, $this->request->getBeginDate());
@@ -62,7 +62,7 @@ class GetUserSummaryRequestTest extends TestCase
      */
     public function testSetAndGetEndDate_withValidDate_returnsDate(): void
     {
-        $endDate = Carbon::create(2023, 1, 7);
+        $endDate = CarbonImmutable::create(2023, 1, 7);
         $this->request->setEndDate($endDate);
 
         $this->assertSame($endDate, $this->request->getEndDate());
@@ -85,8 +85,8 @@ class GetUserSummaryRequestTest extends TestCase
     public function testGetRequestOptions_withExcessiveDateRange_stillGeneratesOptions(): void
     {
         // 这里设置一个超过7天的日期范围
-        $beginDate = Carbon::create(2023, 1, 1);
-        $endDate = Carbon::create(2023, 1, 15); // 超过7天
+        $beginDate = CarbonImmutable::create(2023, 1, 1);
+        $endDate = CarbonImmutable::create(2023, 1, 15); // 超过7天
 
         $this->request->setBeginDate($beginDate);
         $this->request->setEndDate($endDate);
@@ -105,8 +105,8 @@ class GetUserSummaryRequestTest extends TestCase
     public function testGetRequestOptions_withEndDateBeforeBeginDate_stillGeneratesOptions(): void
     {
         // 结束日期在开始日期之前
-        $beginDate = Carbon::create(2023, 1, 10);
-        $endDate = Carbon::create(2023, 1, 5);
+        $beginDate = CarbonImmutable::create(2023, 1, 10);
+        $endDate = CarbonImmutable::create(2023, 1, 5);
 
         $this->request->setBeginDate($beginDate);
         $this->request->setEndDate($endDate);

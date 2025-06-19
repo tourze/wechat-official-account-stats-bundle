@@ -2,7 +2,7 @@
 
 namespace WechatOfficialAccountStatsBundle\Command;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -42,8 +42,8 @@ class SyncArticleTotalCommand extends Command
         foreach ($this->accountRepository->findBy(['valid' => true]) as $account) {
             $request = new GetArticleTotalRequest();
             $request->setAccount($account);
-            $request->setBeginDate(Carbon::now()->subDays());
-            $request->setEndDate(Carbon::now()->subDays());
+            $request->setBeginDate(CarbonImmutable::now()->subDays());
+            $request->setEndDate(CarbonImmutable::now()->subDays());
             $response = $this->client->request($request);
             if (!isset($response['list'])) {
                 $this->logger->error('获取累计用户数据发生错误', [
@@ -54,18 +54,18 @@ class SyncArticleTotalCommand extends Command
             }
 
             foreach ($response['list'] as $item) {
-                $date = Carbon::parse($item['ref_date']);
+                $date = CarbonImmutable::parse($item['ref_date']);
                 foreach ($item['details'] as $detailValue) {
                     $articleTotal = $this->articleTotalRepository->findOneBy([
                         'account' => $account,
                         'date' => $date,
-                        'stat_date' => Carbon::parse($detailValue['stat_date']),
+                        'stat_date' => CarbonImmutable::parse($detailValue['stat_date']),
                     ]);
                     if ($articleTotal === null) {
                         $articleTotal = new ArticleTotal();
                         $articleTotal->setAccount($account);
                         $articleTotal->setDate($date);
-                        $articleTotal->setStatDate(Carbon::parse($detailValue['stat_date']));
+                        $articleTotal->setStatDate(CarbonImmutable::parse($detailValue['stat_date']));
                     }
                     $articleTotal->setMsgId($item['msgId']);
                     $articleTotal->setTitle($item['title']);

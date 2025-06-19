@@ -2,7 +2,6 @@
 
 namespace WechatOfficialAccountStatsBundle\Tests\Command;
 
-use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -56,7 +55,7 @@ class SyncUserSummaryCommandTest extends TestCase
     public function testExecute_withSuccessfulResponse_returnsSuccess(): void
     {
         // 固定当前日期，以确保测试的可预测性
-        CarbonImmutable::setTestNow(Carbon::create(2023, 1, 10));
+        CarbonImmutable::setTestNow(CarbonImmutable::create(2023, 1, 10));
 
         $account = $this->createMock(Account::class);
 
@@ -150,7 +149,7 @@ class SyncUserSummaryCommandTest extends TestCase
     public function testExecute_withErrorResponse_logsErrorAndContinues(): void
     {
         // 固定当前日期
-        CarbonImmutable::setTestNow(Carbon::create(2023, 1, 10));
+        CarbonImmutable::setTestNow(CarbonImmutable::create(2023, 1, 10));
 
         $account = $this->createMock(Account::class);
 
@@ -200,7 +199,7 @@ class SyncUserSummaryCommandTest extends TestCase
     public function testExecute_withUnknownSource_logsErrorAndContinues(): void
     {
         // 固定当前日期
-        CarbonImmutable::setTestNow(Carbon::create(2023, 1, 10));
+        CarbonImmutable::setTestNow(CarbonImmutable::create(2023, 1, 10));
 
         $account = $this->createMock(Account::class);
 

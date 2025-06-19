@@ -2,7 +2,6 @@
 
 namespace WechatOfficialAccountStatsBundle\Command;
 
-use Carbon\Carbon;
 use Carbon\CarbonImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -55,7 +54,7 @@ class SyncUserCumulateCommand extends Command
             }
 
             foreach ($response['list'] as $item) {
-                $date = Carbon::parse($item['ref_date'])->startOfDay();
+                $date = CarbonImmutable::parse($item['ref_date'])->startOfDay();
 
                 $cumulate = $this->cumulateRepository->findOneBy([
                     'account' => $account,
