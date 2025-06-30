@@ -22,7 +22,7 @@ use WechatOfficialAccountStatsBundle\Request\GetMessageSendMonthDataRequest;
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Message_analysis_data_interface.html
  */
 // 每个月1号执行
-#[AsCronTask('22 4 * * *')]
+#[AsCronTask(expression: '22 4 * * *')]
 #[AsCommand(name: self::NAME, description: '公众号-获取消息发送月数据')]
 class SyncMessageSendMonthDataCommand extends Command
 {

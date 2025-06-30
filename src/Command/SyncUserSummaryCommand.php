@@ -20,7 +20,7 @@ use WechatOfficialAccountStatsBundle\Request\GetUserSummaryRequest;
 /**
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/User_Analysis_Data_Interface.html
  */
-#[AsCronTask('4 3 * * *')]
+#[AsCronTask(expression: '4 3 * * *')]
 #[AsCommand(name: self::NAME, description: '公众号-获取用户增减数据')]
 class SyncUserSummaryCommand extends Command
 {

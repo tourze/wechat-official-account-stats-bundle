@@ -19,7 +19,7 @@ use WechatOfficialAccountStatsBundle\Request\GetUserCumulateRequest;
 /**
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/User_Analysis_Data_Interface.html
  */
-#[AsCronTask('4 3 * * *')]
+#[AsCronTask(expression: '4 3 * * *')]
 #[AsCommand(name: self::NAME, description: '公众号-获取累计用户数据')]
 class SyncUserCumulateCommand extends Command
 {

@@ -22,7 +22,7 @@ use WechatOfficialAccountStatsBundle\Request\GetUserShareRequest;
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Graphic_Analysis_Data_Interface.html
  */
 // 每周一跑
-#[AsCronTask('11 1 * * *')]
+#[AsCronTask(expression: '11 1 * * *')]
 #[AsCommand(name: self::NAME, description: '公众号-获取图文分享转发数据')]
 class SyncImageTextShareDataCommand extends Command
 {

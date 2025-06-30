@@ -21,7 +21,7 @@ use WechatOfficialAccountStatsBundle\Request\GetMessageSendHourDataRequest;
  *
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Message_analysis_data_interface.html
  */
-#[AsCronTask('1 2 * * *')]
+#[AsCronTask(expression: '1 2 * * *')]
 #[AsCommand(name: self::NAME, description: '公众号-获取消息发送分时数据')]
 class SyncMessageSendHourDataCommand extends Command
 {

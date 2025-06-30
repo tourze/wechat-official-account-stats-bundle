@@ -20,7 +20,7 @@ use WechatOfficialAccountStatsBundle\Request\InterfaceSummaryDataRequest;
  *
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Analytics_API.html
  */
-// #[AsCronTask('2 1 * * *')]
+// #[AsCronTask(expression: '2 1 * * *')]
 #[AsCommand(name: self::NAME, description: '公众号-获取接口分析数据')]
 class SyncInterfaceSummaryCommand extends Command
 {

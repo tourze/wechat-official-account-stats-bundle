@@ -22,7 +22,7 @@ use WechatOfficialAccountStatsBundle\Request\GetUserReadRequest;
  *
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Graphic_Analysis_Data_Interface.html
  */
-#[AsCronTask('0 12 * * *')]
+#[AsCronTask(expression: '0 12 * * *')]
 #[AsCommand(name: self::NAME, description: '公众号-获取图文统计数据')]
 class SyncImageTextStatisticsCommand extends Command
 {

@@ -21,7 +21,7 @@ use WechatOfficialAccountStatsBundle\Request\MessageSendDistDataRequest;
  *
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Message_analysis_data_interface.html
  */
-#[AsCronTask('0 12 * * *')]
+#[AsCronTask(expression: '0 12 * * *')]
 #[AsCommand(name: self::NAME, description: '公众号-获取消息发送分布数据')]
 class SyncMessageSendDIstDataCommand extends Command
 {

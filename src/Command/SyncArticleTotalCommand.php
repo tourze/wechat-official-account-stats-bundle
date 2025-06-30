@@ -21,7 +21,7 @@ use WechatOfficialAccountStatsBundle\Request\GetArticleTotalRequest;
  *
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Graphic_Analysis_Data_Interface.html
  */
-#[AsCronTask('0 12 * * *')]
+#[AsCronTask(expression: '0 12 * * *')]
 #[AsCommand(name: self::NAME, description: '公众号-获取图文群发总数据')]
 class SyncArticleTotalCommand extends Command
 {

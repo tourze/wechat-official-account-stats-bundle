@@ -23,7 +23,7 @@ use WechatOfficialAccountStatsBundle\Request\GetAdvertisingSpaceDataRequest;
  *
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Ad_Analysis.html
  */
-#[AsCronTask('41 0 * * *')]
+#[AsCronTask(expression: '41 0 * * *')]
 #[AsCommand(name: self::NAME, description: '公众号-获取公众号结算收入数据')]
 class SyncSettlementIncomeCommand extends Command
 {

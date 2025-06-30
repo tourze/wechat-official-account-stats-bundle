@@ -21,7 +21,7 @@ use WechatOfficialAccountStatsBundle\Request\GetMessageSendDataRequest;
  *
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Message_analysis_data_interface.html
  */
-#[AsCronTask('2 1 * * *')]
+#[AsCronTask(expression: '2 1 * * *')]
 #[AsCommand(name: self::NAME, description: '公众号-获取消息发送概况数据')]
 class SyncMessageSendDataCommand extends Command
 {

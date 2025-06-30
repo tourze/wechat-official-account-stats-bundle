@@ -21,7 +21,7 @@ use WechatOfficialAccountStatsBundle\Request\GetAdvertisingSpaceDataRequest;
  *
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Ad_Analysis.html
  */
-#[AsCronTask('1 1 * * *')]
+#[AsCronTask(expression: '1 1 * * *')]
 #[AsCommand(name: self::NAME, description: '公众号-获取公众号分广告位数据')]
 class SyncAdvertisingSpaceDataCommand extends Command
 {
@@ -45,8 +45,8 @@ class SyncAdvertisingSpaceDataCommand extends Command
             $request->setAccount($account);
             $request->setPage('1');
             $request->setPageSize('10');
-            $request->setStartDate(CarbonImmutable::now()->weekday(1)->subDays(7));
-            $request->setEndDate(CarbonImmutable::now()->weekday(6)->subDays(6));
+            $request->setStartDate(CarbonImmutable::now()->weekday(1)->subDays(7)->format('Y-m-d'));
+            $request->setEndDate(CarbonImmutable::now()->weekday(6)->subDays(6)->format('Y-m-d'));
             $result = $this->client->request($request);
             if (!isset($result['list'])) {
                 $this->logger->error('获取公众号分广告位数据错误', [
@@ -67,14 +67,14 @@ class SyncAdvertisingSpaceDataCommand extends Command
                     $advertisingSpaceData->setAccount($account);
                     $advertisingSpaceData->setDate($date);
                 }
-                $advertisingSpaceData->setSlotId($item['slot_id']);
+                $advertisingSpaceData->setSlotId((int) $item['slot_id']);
                 $advertisingSpaceData->setAdSlot($item['ad_slot']);
-                $advertisingSpaceData->setReqSuccCount($item['req_succ_count']);
-                $advertisingSpaceData->setExposureCount($item['exposure_rate_count']);
-                $advertisingSpaceData->setClickCount($item['click_count']);
-                $advertisingSpaceData->setClickRate($item['click_rate']);
-                $advertisingSpaceData->setIncome($item['income']);
-                $advertisingSpaceData->setEcpm($item['ecpm']);
+                $advertisingSpaceData->setReqSuccCount((int) $item['req_succ_count']);
+                $advertisingSpaceData->setExposureCount((int) $item['exposure_rate_count']);
+                $advertisingSpaceData->setClickCount((int) $item['click_count']);
+                $advertisingSpaceData->setClickRate((string) $item['click_rate']);
+                $advertisingSpaceData->setIncome((int) $item['income']);
+                $advertisingSpaceData->setEcpm((string) $item['ecpm']);
                 $this->entityManager->persist($advertisingSpaceData);
                 $this->entityManager->flush();
             }

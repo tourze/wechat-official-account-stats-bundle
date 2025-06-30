@@ -21,7 +21,7 @@ use WechatOfficialAccountStatsBundle\Request\GetAdvertisingSpaceDataRequest;
  *
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Ad_Analysis.html
  */
-#[AsCronTask('11 3 * * *')]
+#[AsCronTask(expression: '11 3 * * *')]
 #[AsCommand(name: self::NAME, description: '公众号-获取公众号返佣商品数据')]
 class SyncRebateGoodsDataCommand extends Command
 {
