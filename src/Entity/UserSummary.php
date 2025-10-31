@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountStatsBundle\Enum\UserSummarySource;
@@ -15,42 +18,46 @@ use WechatOfficialAccountStatsBundle\Repository\UserSummaryRepository;
 class UserSummary implements \Stringable
 {
     use TimestampableAware;
-            #[ORM\Id]
+
+    #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
-    private ?int $id = 0;
+    private int $id = 0;
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
 
-            #[ORM\ManyToOne]
+    #[ORM\ManyToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Account $account;
 
-        #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
+    #[Assert\NotNull]
     private ?\DateTimeInterface $date = null;
 
-        #[ORM\Column(enumType: UserSummarySource::class, options: ['comment' => '用户的渠道'])]
+    #[ORM\Column(enumType: UserSummarySource::class, options: ['comment' => '用户的渠道'])]
+    #[Assert\NotNull]
+    #[Assert\Choice(callback: [UserSummarySource::class, 'cases'])]
     private ?UserSummarySource $source = null;
 
-        #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '新增的用户量'])]
+    #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '新增的用户量'])]
+    #[Assert\PositiveOrZero]
     private ?int $newUser = null;
 
-        #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '取消关注的用户数量，new_user减去cancel_user即为净增用户数量'])]
+    #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '取消关注的用户数量，new_user减去cancel_user即为净增用户数量'])]
+    #[Assert\PositiveOrZero]
     private ?int $cancelUser = null;
 
-        public function getAccount(): Account
+    public function getAccount(): Account
     {
         return $this->account;
     }
 
-    public function setAccount(Account $account): static
+    public function setAccount(Account $account): void
     {
         $this->account = $account;
-
-        return $this;
     }
 
     public function getDate(): ?\DateTimeInterface
@@ -58,11 +65,9 @@ class UserSummary implements \Stringable
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): static
+    public function setDate(\DateTimeInterface $date): void
     {
         $this->date = $date;
-
-        return $this;
     }
 
     public function getSource(): ?UserSummarySource
@@ -70,11 +75,9 @@ class UserSummary implements \Stringable
         return $this->source;
     }
 
-    public function setSource(UserSummarySource $source): static
+    public function setSource(UserSummarySource $source): void
     {
         $this->source = $source;
-
-        return $this;
     }
 
     public function getNewUser(): ?int
@@ -82,11 +85,9 @@ class UserSummary implements \Stringable
         return $this->newUser;
     }
 
-    public function setNewUser(int $newUser): static
+    public function setNewUser(int $newUser): void
     {
         $this->newUser = $newUser;
-
-        return $this;
     }
 
     public function getCancelUser(): ?int
@@ -94,12 +95,11 @@ class UserSummary implements \Stringable
         return $this->cancelUser;
     }
 
-    public function setCancelUser(int $cancelUser): static
+    public function setCancelUser(int $cancelUser): void
     {
         $this->cancelUser = $cancelUser;
-
-        return $this;
     }
+
     public function __toString(): string
     {
         return (string) $this->id;

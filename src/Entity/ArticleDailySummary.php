@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountStatsBundle\Repository\ArticleDailySummaryRepository;
@@ -14,63 +17,73 @@ use WechatOfficialAccountStatsBundle\Repository\ArticleDailySummaryRepository;
 class ArticleDailySummary implements \Stringable
 {
     use TimestampableAware;
-            #[ORM\Id]
+
+    #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
-    private ?int $id = 0;
+    private int $id = 0;
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
 
-        #[ORM\ManyToOne]
+    #[ORM\ManyToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Account $account;
 
-        #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
+    #[Assert\NotNull]
     private ?\DateTimeInterface $date = null;
 
-        #[ORM\Column(length: 60, nullable: true, options: ['comment' => '这里的msgid实际上是由msgid和index组成'])]
+    #[ORM\Column(length: 60, nullable: true, options: ['comment' => '这里的msgid实际上是由msgid和index组成'])]
+    #[Assert\Length(max: 60)]
     private ?string $msgId = null;
 
-            #[ORM\Column(length: 60, nullable: true, options: ['comment' => '图文消息的标题'])]
+    #[ORM\Column(length: 60, nullable: true, options: ['comment' => '图文消息的标题'])]
+    #[Assert\Length(max: 60)]
     private ?string $title = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '图文页（点击群发图文卡片进入的页面）的阅读人数'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '图文页（点击群发图文卡片进入的页面）的阅读人数'])]
+    #[Assert\PositiveOrZero]
     private ?int $intPageReadUser = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '图文页的阅读次数'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '图文页的阅读次数'])]
+    #[Assert\PositiveOrZero]
     private ?int $intPageReadCount = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '原文页（点击图文页“阅读原文”进入的页面）的阅读人数，无原文页时此处数据为0'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '原文页（点击图文页“阅读原文”进入的页面）的阅读人数，无原文页时此处数据为0'])]
+    #[Assert\PositiveOrZero]
     private ?int $oriPageReadUser = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '原文页的阅读次数'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '原文页的阅读次数'])]
+    #[Assert\PositiveOrZero]
     private ?int $oriPageReadCount = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '分享的人数'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '分享的人数'])]
+    #[Assert\PositiveOrZero]
     private ?int $shareUser = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '分享的次数'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '分享的次数'])]
+    #[Assert\PositiveOrZero]
     private ?int $shareCount = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '收藏的人数'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '收藏的人数'])]
+    #[Assert\PositiveOrZero]
     private ?int $addToFavUser = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '收藏的次数'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '收藏的次数'])]
+    #[Assert\PositiveOrZero]
     private ?int $addToFavCount = null;
 
-        public function getAddToFavCount(): ?int
+    public function getAddToFavCount(): ?int
     {
         return $this->addToFavCount;
     }
 
-    public function setAddToFavCount(int $addToFavCount): static
+    public function setAddToFavCount(int $addToFavCount): void
     {
         $this->addToFavCount = $addToFavCount;
-
-        return $this;
     }
 
     public function getAddToFavUser(): ?int
@@ -78,11 +91,9 @@ class ArticleDailySummary implements \Stringable
         return $this->addToFavUser;
     }
 
-    public function setAddToFavUser(int $addToFavUser): static
+    public function setAddToFavUser(int $addToFavUser): void
     {
         $this->addToFavUser = $addToFavUser;
-
-        return $this;
     }
 
     public function getShareCount(): ?int
@@ -90,11 +101,9 @@ class ArticleDailySummary implements \Stringable
         return $this->shareCount;
     }
 
-    public function setShareCount(int $shareCount): static
+    public function setShareCount(int $shareCount): void
     {
         $this->shareCount = $shareCount;
-
-        return $this;
     }
 
     public function getShareUser(): ?int
@@ -102,11 +111,9 @@ class ArticleDailySummary implements \Stringable
         return $this->shareUser;
     }
 
-    public function setShareUser(int $shareUser): static
+    public function setShareUser(int $shareUser): void
     {
         $this->shareUser = $shareUser;
-
-        return $this;
     }
 
     public function getOriPageReadCount(): ?int
@@ -114,11 +121,9 @@ class ArticleDailySummary implements \Stringable
         return $this->oriPageReadCount;
     }
 
-    public function setOriPageReadCount(int $oriPageReadCount): static
+    public function setOriPageReadCount(int $oriPageReadCount): void
     {
         $this->oriPageReadCount = $oriPageReadCount;
-
-        return $this;
     }
 
     public function getOriPageReadUser(): ?int
@@ -126,11 +131,9 @@ class ArticleDailySummary implements \Stringable
         return $this->oriPageReadUser;
     }
 
-    public function setOriPageReadUser(int $oriPageReadUser): static
+    public function setOriPageReadUser(int $oriPageReadUser): void
     {
         $this->oriPageReadUser = $oriPageReadUser;
-
-        return $this;
     }
 
     public function getIntPageReadCount(): ?int
@@ -138,11 +141,9 @@ class ArticleDailySummary implements \Stringable
         return $this->intPageReadCount;
     }
 
-    public function setIntPageReadCount(int $intPageReadCount): static
+    public function setIntPageReadCount(int $intPageReadCount): void
     {
         $this->intPageReadCount = $intPageReadCount;
-
-        return $this;
     }
 
     public function getIntPageReadUser(): ?int
@@ -150,11 +151,9 @@ class ArticleDailySummary implements \Stringable
         return $this->intPageReadUser;
     }
 
-    public function setIntPageReadUser(int $intPageReadUser): static
+    public function setIntPageReadUser(int $intPageReadUser): void
     {
         $this->intPageReadUser = $intPageReadUser;
-
-        return $this;
     }
 
     public function getTitle(): ?string
@@ -162,11 +161,9 @@ class ArticleDailySummary implements \Stringable
         return $this->title;
     }
 
-    public function setTitle(string $title): self
+    public function setTitle(string $title): void
     {
         $this->title = $title;
-
-        return $this;
     }
 
     public function getMsgId(): ?string
@@ -174,11 +171,9 @@ class ArticleDailySummary implements \Stringable
         return $this->msgId;
     }
 
-    public function setMsgId(string $msgId): self
+    public function setMsgId(string $msgId): void
     {
         $this->msgId = $msgId;
-
-        return $this;
     }
 
     public function getAccount(): Account
@@ -186,11 +181,9 @@ class ArticleDailySummary implements \Stringable
         return $this->account;
     }
 
-    public function setAccount(Account $account): static
+    public function setAccount(Account $account): void
     {
         $this->account = $account;
-
-        return $this;
     }
 
     public function getDate(): ?\DateTimeInterface
@@ -198,12 +191,11 @@ class ArticleDailySummary implements \Stringable
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): static
+    public function setDate(\DateTimeInterface $date): void
     {
         $this->date = $date;
-
-        return $this;
     }
+
     public function __toString(): string
     {
         return (string) $this->id;

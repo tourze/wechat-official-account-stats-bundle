@@ -1,24 +1,19 @@
 <?php
 
-namespace WechatOfficialAccountStatsBundle\Tests\Unit\Enum;
+declare(strict_types=1);
 
-use PHPUnit\Framework\TestCase;
+namespace WechatOfficialAccountStatsBundle\Tests\Enum;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use Tourze\PHPUnitEnum\AbstractEnumTestCase;
 use WechatOfficialAccountStatsBundle\Enum\SettlementIncomeOrderTypeEnum;
 
-class SettlementIncomeOrderTypeEnumTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(SettlementIncomeOrderTypeEnum::class)]
+final class SettlementIncomeOrderTypeEnumTest extends AbstractEnumTestCase
 {
-    public function testEnumValues(): void
-    {
-        $this->assertSame(1, SettlementIncomeOrderTypeEnum::FIRST_HALF_OF_MONTH->value);
-        $this->assertSame(2, SettlementIncomeOrderTypeEnum::SECOND_HALF_OF_MONTH->value);
-    }
-
-    public function testGetLabel(): void
-    {
-        $this->assertSame('上半月', SettlementIncomeOrderTypeEnum::FIRST_HALF_OF_MONTH->getLabel());
-        $this->assertSame('下半月', SettlementIncomeOrderTypeEnum::SECOND_HALF_OF_MONTH->getLabel());
-    }
-
     public function testTraitMethodsExist(): void
     {
         $reflection = new \ReflectionClass(SettlementIncomeOrderTypeEnum::class);
@@ -27,25 +22,29 @@ class SettlementIncomeOrderTypeEnumTest extends TestCase
         $this->assertTrue($reflection->hasMethod('genOptions'));
     }
 
-    public function testToSelectItem(): void
-    {
-        $item = SettlementIncomeOrderTypeEnum::FIRST_HALF_OF_MONTH->toSelectItem();
-        $this->assertArrayHasKey('value', $item);
-        $this->assertArrayHasKey('label', $item);
-        $this->assertSame(1, $item['value']);
-        $this->assertSame('上半月', $item['label']);
-    }
-
     public function testGenOptions(): void
     {
         $options = SettlementIncomeOrderTypeEnum::genOptions();
         $this->assertCount(2, $options);
-        
+
         // 检查第一个选项的结构
         $firstOption = $options[0];
         $this->assertArrayHasKey('label', $firstOption);
         $this->assertArrayHasKey('value', $firstOption);
         $this->assertSame('上半月', $firstOption['label']);
         $this->assertSame(1, $firstOption['value']);
+    }
+
+    public function testToArray(): void
+    {
+        $array = SettlementIncomeOrderTypeEnum::FIRST_HALF_OF_MONTH->toArray();
+        $this->assertArrayHasKey('label', $array);
+        $this->assertArrayHasKey('value', $array);
+        $this->assertSame('上半月', $array['label']);
+        $this->assertSame(1, $array['value']);
+
+        $array2 = SettlementIncomeOrderTypeEnum::SECOND_HALF_OF_MONTH->toArray();
+        $this->assertSame('下半月', $array2['label']);
+        $this->assertSame(2, $array2['value']);
     }
 }

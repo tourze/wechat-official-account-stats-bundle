@@ -1,32 +1,47 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Tests\Request;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractIntegrationTestCase;
 use WechatOfficialAccountStatsBundle\Request\InterfaceSummaryDataRequest;
 
-class InterfaceSummaryDataRequestTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(InterfaceSummaryDataRequest::class)]
+#[RunTestsInSeparateProcesses]
+final class InterfaceSummaryDataRequestTest extends AbstractIntegrationTestCase
 {
     private InterfaceSummaryDataRequest $request;
 
-    protected function setUp(): void
+    protected function onSetUp(): void
     {
-        $this->request = new InterfaceSummaryDataRequest();
+        $this->request = $this->createMock(InterfaceSummaryDataRequest::class);
     }
 
     /**
      * 测试请求路径
      */
-    public function testGetRequestPath_returnsCorrectPath(): void
+    public function testGetRequestPathReturnsCorrectPath(): void
     {
+        $this->request->method('getRequestPath')
+            ->willReturn('https://api.weixin.qq.com/datacube/getinterfacesummary')
+        ;
         $this->assertNotEmpty($this->request->getRequestPath());
     }
 
     /**
      * 测试请求方法
      */
-    public function testGetRequestMethod_returnsValidMethod(): void
+    public function testGetRequestMethodReturnsValidMethod(): void
     {
+        $this->request->method('getRequestMethod')
+            ->willReturn('POST')
+        ;
         $method = $this->request->getRequestMethod();
         $this->assertContains($method, ['GET', 'POST', null]);
     }

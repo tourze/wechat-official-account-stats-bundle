@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Command;
 
 use Carbon\CarbonImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -12,15 +15,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Tourze\Symfony\CronJob\Attribute\AsCronTask;
 use WechatOfficialAccountBundle\Repository\AccountRepository;
 use WechatOfficialAccountBundle\Service\OfficialAccountClient;
-use WechatOfficialAccountStatsBundle\Entity\RebateGoodsData;
-use WechatOfficialAccountStatsBundle\Repository\RebateGoodsDataRepository;
 use WechatOfficialAccountStatsBundle\Request\GetAdvertisingSpaceDataRequest;
+use WechatOfficialAccountStatsBundle\Service\RebateGoodsDataProcessor;
 
 /**
  * 获取公众号返佣商品数据
  *
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Ad_Analysis.html
  */
+#[WithMonologChannel(channel: 'wechat_official_account_stats')]
 #[AsCronTask(expression: '11 3 * * *')]
 #[AsCommand(name: self::NAME, description: '公众号-获取公众号返佣商品数据')]
 class SyncRebateGoodsDataCommand extends Command
@@ -29,10 +32,9 @@ class SyncRebateGoodsDataCommand extends Command
 
     public function __construct(
         private readonly AccountRepository $accountRepository,
-        private readonly RebateGoodsDataRepository $rebateGoodsDataRepository,
-        private readonly EntityManagerInterface $entityManager,
-        private readonly LoggerInterface $logger,
         private readonly OfficialAccountClient $client,
+        private readonly RebateGoodsDataProcessor $dataProcessor,
+        private readonly EntityManagerInterface $entityManager,
         ?string $name = null,
     ) {
         parent::__construct($name);
@@ -46,38 +48,16 @@ class SyncRebateGoodsDataCommand extends Command
             $request->setAccount($account);
             $request->setPage('1');
             $request->setPageSize('10');
-            $request->setStartDate(CarbonImmutable::now()->weekday(1)->subDays(7));
-            $request->setEndDate(CarbonImmutable::now()->weekday(6)->subDays(6));
+            $request->setStartDate(CarbonImmutable::now()->startOfWeek()->subWeek()->format('Y-m-d'));
+            $request->setEndDate(CarbonImmutable::now()->startOfWeek()->subDay()->format('Y-m-d'));
             $result = $this->client->request($request);
-            if (!isset($result['list'])) {
-                $this->logger->error('获取公众号返佣商品数据发生错误', [
-                    'account' => $account,
-                    'response' => $result,
-                ]);
+
+            if (!is_array($result)) {
                 continue;
             }
 
-            foreach ($result['list'] as $item) {
-                $date = CarbonImmutable::parse($item['date']);
-                $rebateGoodsData = $this->rebateGoodsDataRepository->findOneBy([
-                    'account' => $account,
-                    'date' => $date,
-                ]);
-                if ($rebateGoodsData === null) {
-                    $rebateGoodsData = new RebateGoodsData();
-                    $rebateGoodsData->setAccount($account);
-                    $rebateGoodsData->setDate($date);
-                }
-                $rebateGoodsData->setExposureCount($item['exposure_rate_count']);
-                $rebateGoodsData->setClickCount($item['click_count']);
-                $rebateGoodsData->setClickRate($item['click_rate']);
-                $rebateGoodsData->setOrderCount($item['order_count']);
-                $rebateGoodsData->setOrderRate($item['order_rate']);
-                $rebateGoodsData->setTotalFee($item['total_fee']);
-                $rebateGoodsData->setTotalCommission($item['total_commission']);
-                $this->entityManager->persist($rebateGoodsData);
-                $this->entityManager->flush();
-            }
+            $this->dataProcessor->processResponse($account, $result);
+            $this->entityManager->flush();
         }
 
         return Command::SUCCESS;

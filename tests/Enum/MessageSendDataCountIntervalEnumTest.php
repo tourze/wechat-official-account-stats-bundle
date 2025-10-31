@@ -1,28 +1,19 @@
 <?php
 
-namespace WechatOfficialAccountStatsBundle\Tests\Unit\Enum;
+declare(strict_types=1);
 
-use PHPUnit\Framework\TestCase;
+namespace WechatOfficialAccountStatsBundle\Tests\Enum;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use Tourze\PHPUnitEnum\AbstractEnumTestCase;
 use WechatOfficialAccountStatsBundle\Enum\MessageSendDataCountIntervalEnum;
 
-class MessageSendDataCountIntervalEnumTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(MessageSendDataCountIntervalEnum::class)]
+final class MessageSendDataCountIntervalEnumTest extends AbstractEnumTestCase
 {
-    public function testEnumValues(): void
-    {
-        $this->assertSame(0, MessageSendDataCountIntervalEnum::ZERO->value);
-        $this->assertSame(1, MessageSendDataCountIntervalEnum::ONE_TO_FIVE->value);
-        $this->assertSame(2, MessageSendDataCountIntervalEnum::SIX_TO_TEN->value);
-        $this->assertSame(3, MessageSendDataCountIntervalEnum::MORE_THAN_TEN->value);
-    }
-
-    public function testGetLabel(): void
-    {
-        $this->assertSame('0', MessageSendDataCountIntervalEnum::ZERO->getLabel());
-        $this->assertSame('1-5', MessageSendDataCountIntervalEnum::ONE_TO_FIVE->getLabel());
-        $this->assertSame('6-10', MessageSendDataCountIntervalEnum::SIX_TO_TEN->getLabel());
-        $this->assertSame('10次以上', MessageSendDataCountIntervalEnum::MORE_THAN_TEN->getLabel());
-    }
-
     public function testTraitMethodsExist(): void
     {
         $reflection = new \ReflectionClass(MessageSendDataCountIntervalEnum::class);
@@ -31,25 +22,29 @@ class MessageSendDataCountIntervalEnumTest extends TestCase
         $this->assertTrue($reflection->hasMethod('genOptions'));
     }
 
-    public function testToSelectItem(): void
-    {
-        $item = MessageSendDataCountIntervalEnum::ZERO->toSelectItem();
-        $this->assertArrayHasKey('value', $item);
-        $this->assertArrayHasKey('label', $item);
-        $this->assertSame(0, $item['value']);
-        $this->assertSame('0', $item['label']);
-    }
-
     public function testGenOptions(): void
     {
         $options = MessageSendDataCountIntervalEnum::genOptions();
         $this->assertCount(4, $options);
-        
+
         // 检查第一个选项的结构
         $firstOption = $options[0];
         $this->assertArrayHasKey('label', $firstOption);
         $this->assertArrayHasKey('value', $firstOption);
         $this->assertSame('0', $firstOption['label']);
         $this->assertSame(0, $firstOption['value']);
+    }
+
+    public function testToArray(): void
+    {
+        $array = MessageSendDataCountIntervalEnum::ZERO->toArray();
+        $this->assertArrayHasKey('label', $array);
+        $this->assertArrayHasKey('value', $array);
+        $this->assertSame('0', $array['label']);
+        $this->assertSame(0, $array['value']);
+
+        $array2 = MessageSendDataCountIntervalEnum::ONE_TO_FIVE->toArray();
+        $this->assertSame('1-5', $array2['label']);
+        $this->assertSame(1, $array2['value']);
     }
 }

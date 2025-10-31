@@ -1,52 +1,101 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Tests\Repository;
 
-use Doctrine\Persistence\ManagerRegistry;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractRepositoryTestCase;
+use WechatOfficialAccountBundle\Entity\Account;
+use WechatOfficialAccountStatsBundle\Entity\SettlementIncomeData;
+use WechatOfficialAccountStatsBundle\Enum\SettlementIncomeOrderStatusEnum;
+use WechatOfficialAccountStatsBundle\Enum\SettlementIncomeOrderTypeEnum;
 use WechatOfficialAccountStatsBundle\Repository\SettlementIncomeDataRepository;
 
-class SettlementIncomeDataRepositoryTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(SettlementIncomeDataRepository::class)]
+#[RunTestsInSeparateProcesses]
+final class SettlementIncomeDataRepositoryTest extends AbstractRepositoryTestCase
 {
-    /**
-     * 测试仓库构造函数是否接受正确的实体类类名
-     */
-    public function testRepositoryConstruction(): void
+    private SettlementIncomeDataRepository $repository;
+
+    protected function onSetUp(): void
     {
-        $registry = $this->createMock(ManagerRegistry::class);
-
-        // 测试能否正确实例化仓库
-        $repository = new SettlementIncomeDataRepository($registry);
-
-        $this->assertInstanceOf(SettlementIncomeDataRepository::class, $repository);
+        $this->repository = self::getService(SettlementIncomeDataRepository::class);
     }
 
-    /**
-     * 测试仓库类是否与正确的实体类关联
-     */
-    public function testRepositoryEntityClassAssociation(): void
+    public function testRepositoryInstanceShouldReturnCorrectInstance(): void
     {
-        // 验证实体类名被正确传递给父类构造函数
-        $constructorBody = $this->getConstructorBody(SettlementIncomeDataRepository::class);
-        $this->assertStringContainsString('SettlementIncomeData::class', $constructorBody, '构造函数应传递 SettlementIncomeData::class 给父类');
+        $this->assertInstanceOf(SettlementIncomeDataRepository::class, $this->repository);
     }
 
-    /**
-     * 获取类构造函数的代码内容
-     */
-    private function getConstructorBody(string $className): string
+    public function testSaveShouldPersistEntity(): void
     {
-        $reflection = new \ReflectionClass($className);
-        if (!$reflection->hasMethod('__construct')) {
-            return '';
-        }
+        $account = $this->createAccount();
+        $entity = new SettlementIncomeData();
+        $entity->setAccount($account);
+        $entity->setDate(new \DateTimeImmutable());
+        $entity->setSlotId('test-slot-123');
+        $entity->setOrder(SettlementIncomeOrderTypeEnum::FIRST_HALF_OF_MONTH);
+        $entity->setSettStatus(SettlementIncomeOrderStatusEnum::SETTLING);
 
-        $constructor = $reflection->getMethod('__construct');
-        $filename = $constructor->getFileName();
-        $startLine = $constructor->getStartLine();
-        $endLine = $constructor->getEndLine();
+        $this->repository->save($entity);
 
-        $fileContent = file($filename);
-        return implode('', array_slice($fileContent, $startLine - 1, $endLine - $startLine + 1));
+        $this->assertGreaterThan(0, $entity->getId());
+    }
+
+    public function testRemoveShouldDeleteEntity(): void
+    {
+        $account = $this->createAccount();
+        $entity = new SettlementIncomeData();
+        $entity->setAccount($account);
+        $entity->setDate(new \DateTimeImmutable());
+        $entity->setSlotId('test-slot-123');
+        $entity->setOrder(SettlementIncomeOrderTypeEnum::FIRST_HALF_OF_MONTH);
+        $entity->setSettStatus(SettlementIncomeOrderStatusEnum::SETTLING);
+
+        $this->repository->save($entity);
+        $id = $entity->getId();
+
+        $this->repository->remove($entity);
+
+        $deletedEntity = $this->repository->find($id);
+        $this->assertNull($deletedEntity);
+    }
+
+    private function createAccount(): Account
+    {
+        $account = new Account();
+        $account->setName('Test Account ' . uniqid());
+        $account->setAppId('test_app_id_' . uniqid());
+        $account->setAppSecret('test_secret');
+        $account->setToken('test_token');
+        $account->setEncodingAesKey('test_encoding_key');
+
+        $persistedAccount = $this->persistAndFlush($account);
+        $this->assertInstanceOf(Account::class, $persistedAccount);
+
+        return $persistedAccount;
+    }
+
+    protected function createNewEntity(): object
+    {
+        $account = $this->createAccount();
+        $entity = new SettlementIncomeData();
+        $entity->setAccount($account);
+        $entity->setDate(new \DateTimeImmutable());
+        $entity->setSlotId('test-slot-123');
+        $entity->setOrder(SettlementIncomeOrderTypeEnum::FIRST_HALF_OF_MONTH);
+        $entity->setSettStatus(SettlementIncomeOrderStatusEnum::SETTLING);
+
+        return $entity;
+    }
+
+    protected function getRepository(): SettlementIncomeDataRepository
+    {
+        return $this->repository;
     }
 }

@@ -1,30 +1,19 @@
 <?php
 
-namespace WechatOfficialAccountStatsBundle\Tests\Unit\Enum;
+declare(strict_types=1);
 
-use PHPUnit\Framework\TestCase;
+namespace WechatOfficialAccountStatsBundle\Tests\Enum;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use Tourze\PHPUnitEnum\AbstractEnumTestCase;
 use WechatOfficialAccountStatsBundle\Enum\SettlementIncomeOrderStatusEnum;
 
-class SettlementIncomeOrderStatusEnumTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(SettlementIncomeOrderStatusEnum::class)]
+final class SettlementIncomeOrderStatusEnumTest extends AbstractEnumTestCase
 {
-    public function testEnumValues(): void
-    {
-        $this->assertSame(1, SettlementIncomeOrderStatusEnum::SETTLING->value);
-        $this->assertSame(2, SettlementIncomeOrderStatusEnum::SETTLED->value);
-        $this->assertSame(3, SettlementIncomeOrderStatusEnum::SETTLED_TWO->value);
-        $this->assertSame(4, SettlementIncomeOrderStatusEnum::PAYMENT_PENDING->value);
-        $this->assertSame(5, SettlementIncomeOrderStatusEnum::PAID->value);
-    }
-
-    public function testGetLabel(): void
-    {
-        $this->assertSame('结算中', SettlementIncomeOrderStatusEnum::SETTLING->getLabel());
-        $this->assertSame('已结算', SettlementIncomeOrderStatusEnum::SETTLED->getLabel());
-        $this->assertSame('已结算', SettlementIncomeOrderStatusEnum::SETTLED_TWO->getLabel());
-        $this->assertSame('付款中', SettlementIncomeOrderStatusEnum::PAYMENT_PENDING->getLabel());
-        $this->assertSame('已付款', SettlementIncomeOrderStatusEnum::PAID->getLabel());
-    }
-
     public function testTraitMethodsExist(): void
     {
         $reflection = new \ReflectionClass(SettlementIncomeOrderStatusEnum::class);
@@ -33,25 +22,29 @@ class SettlementIncomeOrderStatusEnumTest extends TestCase
         $this->assertTrue($reflection->hasMethod('genOptions'));
     }
 
-    public function testToSelectItem(): void
-    {
-        $item = SettlementIncomeOrderStatusEnum::SETTLING->toSelectItem();
-        $this->assertArrayHasKey('value', $item);
-        $this->assertArrayHasKey('label', $item);
-        $this->assertSame(1, $item['value']);
-        $this->assertSame('结算中', $item['label']);
-    }
-
     public function testGenOptions(): void
     {
         $options = SettlementIncomeOrderStatusEnum::genOptions();
         $this->assertCount(5, $options);
-        
+
         // 检查第一个选项的结构
         $firstOption = $options[0];
         $this->assertArrayHasKey('label', $firstOption);
         $this->assertArrayHasKey('value', $firstOption);
         $this->assertSame('结算中', $firstOption['label']);
         $this->assertSame(1, $firstOption['value']);
+    }
+
+    public function testToArray(): void
+    {
+        $array = SettlementIncomeOrderStatusEnum::SETTLING->toArray();
+        $this->assertArrayHasKey('label', $array);
+        $this->assertArrayHasKey('value', $array);
+        $this->assertSame('结算中', $array['label']);
+        $this->assertSame(1, $array['value']);
+
+        $array2 = SettlementIncomeOrderStatusEnum::SETTLED->toArray();
+        $this->assertSame('已结算', $array2['label']);
+        $this->assertSame(2, $array2['value']);
     }
 }

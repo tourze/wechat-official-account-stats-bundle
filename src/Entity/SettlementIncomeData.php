@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountStatsBundle\Enum\SettlementIncomeOrderStatusEnum;
@@ -16,63 +19,78 @@ use WechatOfficialAccountStatsBundle\Repository\SettlementIncomeDataRepository;
 class SettlementIncomeData implements \Stringable
 {
     use TimestampableAware;
-            #[ORM\Id]
+
+    #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
-    private ?int $id = 0;
+    private int $id = 0;
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
 
-        #[ORM\ManyToOne]
+    #[ORM\ManyToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Account $account;
 
-        #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
+    #[Assert\NotNull]
     private ?\DateTimeInterface $date = null;
 
-            #[ORM\Column(type: Types::STRING, length: 255, nullable: true, options: ['comment' => '主体名称'])]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true, options: ['comment' => '主体名称'])]
+    #[Assert\Length(max: 255)]
     private ?string $body = null;
 
-        #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '扣除金额'])]
+    #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '扣除金额'])]
+    #[Assert\PositiveOrZero]
     private ?int $penaltyAll = null;
 
-        #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '累计收入'])]
+    #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '累计收入'])]
+    #[Assert\PositiveOrZero]
     private ?int $revenueAll = null;
 
-        #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '已结算金额'])]
+    #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '已结算金额'])]
+    #[Assert\PositiveOrZero]
     private ?int $settledRevenueAll = null;
 
-        #[ORM\Column(type: Types::STRING, length: 255, nullable: true, options: ['comment' => '	日期区间'])]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true, options: ['comment' => '	日期区间'])]
+    #[Assert\Length(max: 255)]
     private ?string $zone = null;
 
-        #[ORM\Column(type: Types::STRING, length: 255, nullable: true, options: ['comment' => '收入月份'])]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true, options: ['comment' => '收入月份'])]
+    #[Assert\Length(max: 255)]
     private ?string $month = null;
 
-        #[ORM\Column(type: Types::INTEGER, enumType: SettlementIncomeOrderTypeEnum::class, options: ['comment' => '1 = 上半月，2 = 下半月'])]
+    #[ORM\Column(name: 'order_type', type: Types::INTEGER, enumType: SettlementIncomeOrderTypeEnum::class, options: ['comment' => '1 = 上半月，2 = 下半月'])]
+    #[Assert\Choice(callback: [SettlementIncomeOrderTypeEnum::class, 'cases'])]
     private ?SettlementIncomeOrderTypeEnum $order = null;
 
-        #[ORM\Column(type: Types::INTEGER, enumType: SettlementIncomeOrderStatusEnum::class, options: ['comment' => '1 = 结算中；2、3 = 已结算；4 = 付款中；5 = 已付款'])]
+    #[ORM\Column(type: Types::INTEGER, enumType: SettlementIncomeOrderStatusEnum::class, options: ['comment' => '1 = 结算中；2、3 = 已结算；4 = 付款中；5 = 已付款'])]
+    #[Assert\Choice(callback: [SettlementIncomeOrderStatusEnum::class, 'cases'])]
     private ?SettlementIncomeOrderStatusEnum $settStatus = null;
 
-        #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '区间内结算收入'])]
+    #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '区间内结算收入'])]
+    #[Assert\PositiveOrZero]
     private ?int $settledRevenue = null;
 
-        #[ORM\Column(type: Types::STRING, length: 255, nullable: true, options: ['comment' => '结算单编号'])]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true, options: ['comment' => '结算单编号'])]
+    #[Assert\Length(max: 255)]
     private ?string $settNo = null;
 
-        #[ORM\Column(type: Types::STRING, length: 255, nullable: true, options: ['comment' => '申请补发结算单次数'])]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true, options: ['comment' => '申请补发结算单次数'])]
+    #[Assert\Length(max: 255)]
     private ?string $mailSendCnt = null;
 
-        #[ORM\Column(type: Types::STRING, length: 255, nullable: true, options: ['comment' => '产生收入的广告位'])]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true, options: ['comment' => '产生收入的广告位'])]
+    #[Assert\Length(max: 255)]
     private ?string $slotId = null;
 
-        #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '该广告位结算金额'])]
+    #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['comment' => '该广告位结算金额'])]
+    #[Assert\PositiveOrZero]
     private ?int $slotSettledRevenue = null;
 
-        public function getSettStatus(): ?SettlementIncomeOrderStatusEnum
+    public function getSettStatus(): ?SettlementIncomeOrderStatusEnum
     {
         return $this->settStatus;
     }
@@ -97,11 +115,9 @@ class SettlementIncomeData implements \Stringable
         return $this->slotSettledRevenue;
     }
 
-    public function setSlotSettledRevenue(?int $slotSettledRevenue): static
+    public function setSlotSettledRevenue(?int $slotSettledRevenue): void
     {
         $this->slotSettledRevenue = $slotSettledRevenue;
-
-        return $this;
     }
 
     public function getSlotId(): ?string
@@ -109,11 +125,9 @@ class SettlementIncomeData implements \Stringable
         return $this->slotId;
     }
 
-    public function setSlotId(?string $slotId): static
+    public function setSlotId(?string $slotId): void
     {
         $this->slotId = $slotId;
-
-        return $this;
     }
 
     public function getMailSendCnt(): ?string
@@ -121,11 +135,9 @@ class SettlementIncomeData implements \Stringable
         return $this->mailSendCnt;
     }
 
-    public function setMailSendCnt(?string $mailSendCnt): static
+    public function setMailSendCnt(?string $mailSendCnt): void
     {
         $this->mailSendCnt = $mailSendCnt;
-
-        return $this;
     }
 
     public function getSettNo(): ?string
@@ -133,11 +145,9 @@ class SettlementIncomeData implements \Stringable
         return $this->settNo;
     }
 
-    public function setSettNo(?string $settNo): static
+    public function setSettNo(?string $settNo): void
     {
         $this->settNo = $settNo;
-
-        return $this;
     }
 
     public function getSettledRevenue(): ?int
@@ -145,11 +155,9 @@ class SettlementIncomeData implements \Stringable
         return $this->settledRevenue;
     }
 
-    public function setSettledRevenue(?int $settledRevenue): static
+    public function setSettledRevenue(?int $settledRevenue): void
     {
         $this->settledRevenue = $settledRevenue;
-
-        return $this;
     }
 
     public function getMonth(): ?string
@@ -157,11 +165,9 @@ class SettlementIncomeData implements \Stringable
         return $this->month;
     }
 
-    public function setMonth(string $month): static
+    public function setMonth(string $month): void
     {
         $this->month = $month;
-
-        return $this;
     }
 
     public function getZone(): ?string
@@ -169,11 +175,9 @@ class SettlementIncomeData implements \Stringable
         return $this->zone;
     }
 
-    public function setZone(string $zone): static
+    public function setZone(string $zone): void
     {
         $this->zone = $zone;
-
-        return $this;
     }
 
     public function getSettledRevenueAll(): ?int
@@ -181,11 +185,9 @@ class SettlementIncomeData implements \Stringable
         return $this->settledRevenueAll;
     }
 
-    public function setSettledRevenueAll(int $settledRevenueAll): static
+    public function setSettledRevenueAll(int $settledRevenueAll): void
     {
         $this->settledRevenueAll = $settledRevenueAll;
-
-        return $this;
     }
 
     public function getRevenueAll(): ?int
@@ -193,11 +195,9 @@ class SettlementIncomeData implements \Stringable
         return $this->revenueAll;
     }
 
-    public function setRevenueAll(int $revenueAll): static
+    public function setRevenueAll(int $revenueAll): void
     {
         $this->revenueAll = $revenueAll;
-
-        return $this;
     }
 
     public function getPenaltyAll(): ?int
@@ -205,11 +205,9 @@ class SettlementIncomeData implements \Stringable
         return $this->penaltyAll;
     }
 
-    public function setPenaltyAll(int $penaltyAll): static
+    public function setPenaltyAll(int $penaltyAll): void
     {
         $this->penaltyAll = $penaltyAll;
-
-        return $this;
     }
 
     public function getBody(): ?string
@@ -217,11 +215,9 @@ class SettlementIncomeData implements \Stringable
         return $this->body;
     }
 
-    public function setBody(string $body): static
+    public function setBody(string $body): void
     {
         $this->body = $body;
-
-        return $this;
     }
 
     public function getAccount(): Account
@@ -229,11 +225,9 @@ class SettlementIncomeData implements \Stringable
         return $this->account;
     }
 
-    public function setAccount(Account $account): static
+    public function setAccount(Account $account): void
     {
         $this->account = $account;
-
-        return $this;
     }
 
     public function getDate(): ?\DateTimeInterface
@@ -241,12 +235,11 @@ class SettlementIncomeData implements \Stringable
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): static
+    public function setDate(\DateTimeInterface $date): void
     {
         $this->date = $date;
-
-        return $this;
     }
+
     public function __toString(): string
     {
         return (string) $this->id;

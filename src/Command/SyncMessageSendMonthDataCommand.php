@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Command;
 
 use Carbon\CarbonImmutable;
@@ -11,10 +13,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Tourze\Symfony\CronJob\Attribute\AsCronTask;
 use WechatOfficialAccountBundle\Repository\AccountRepository;
 use WechatOfficialAccountBundle\Service\OfficialAccountClient;
-use WechatOfficialAccountStatsBundle\Entity\MessageSendMonthData;
-use WechatOfficialAccountStatsBundle\Enum\MessageSendDataTypeEnum;
-use WechatOfficialAccountStatsBundle\Repository\MessageSendMonthDataRepository;
 use WechatOfficialAccountStatsBundle\Request\GetMessageSendMonthDataRequest;
+use WechatOfficialAccountStatsBundle\Service\MessageSendMonthDataProcessor;
 
 /**
  * 获取消息发送月数据
@@ -31,7 +31,7 @@ class SyncMessageSendMonthDataCommand extends Command
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
-        private readonly MessageSendMonthDataRepository $messageSendMonthDataRepository,
+        private readonly MessageSendMonthDataProcessor $dataProcessor,
         private readonly EntityManagerInterface $entityManager,
         ?string $name = null,
     ) {
@@ -45,24 +45,14 @@ class SyncMessageSendMonthDataCommand extends Command
             $request->setAccount($account);
             $request->setBeginDate(CarbonImmutable::now()->subMonth()->startOfMonth());
             $request->setEndDate(CarbonImmutable::now()->subMonth()->endOfMonth());
+
             $response = $this->client->request($request);
-            foreach ($response['list'] as $item) {
-                $date = CarbonImmutable::parse($item['ref_date']);
-                $messageSendMonthData = $this->messageSendMonthDataRepository->findOneBy([
-                    'account' => $account,
-                    'date' => $date,
-                ]);
-                if ($messageSendMonthData === null) {
-                    $messageSendMonthData = new MessageSendMonthData();
-                    $messageSendMonthData->setAccount($account);
-                    $messageSendMonthData->setDate($date);
-                }
-                $messageSendMonthData->setMsgType(MessageSendDataTypeEnum::tryFrom($item['msg_type']));
-                $messageSendMonthData->setMsgUser($item['msg_user']);
-                $messageSendMonthData->setMsgCount($item['msg_count']);
-                $this->entityManager->persist($messageSendMonthData);
-                $this->entityManager->flush();
+
+            if (is_array($response)) {
+                $this->dataProcessor->processResponse($account, $response);
             }
+
+            $this->entityManager->flush();
         }
 
         return Command::SUCCESS;

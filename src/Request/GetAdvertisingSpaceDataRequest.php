@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Request;
 
 use WechatOfficialAccountBundle\Request\WithAccountRequest;
@@ -46,6 +48,9 @@ class GetAdvertisingSpaceDataRequest extends WithAccountRequest
         return 'GET';
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getRequestOptions(): ?array
     {
         return [

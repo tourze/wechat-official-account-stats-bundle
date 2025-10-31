@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountStatsBundle\Repository\RebateGoodsDataRepository;
@@ -14,54 +17,62 @@ use WechatOfficialAccountStatsBundle\Repository\RebateGoodsDataRepository;
 class RebateGoodsData implements \Stringable
 {
     use TimestampableAware;
-            #[ORM\Id]
+
+    #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
-    private ?int $id = 0;
+    private int $id = 0;
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Account $account;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
+    #[Assert\NotNull]
     private ?\DateTimeInterface $date = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '曝光量'])]
+    #[Assert\PositiveOrZero]
     private ?int $exposureCount = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '点击量'])]
+    #[Assert\PositiveOrZero]
     private ?int $clickCount = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '点击率'])]
+    #[Assert\Length(max: 10)]
     private ?string $clickRate = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '订单量'])]
+    #[Assert\PositiveOrZero]
     private ?int $orderCount = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '下单率'])]
+    #[Assert\Length(max: 10)]
     private ?string $orderRate = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '订单金额(分)'])]
+    #[Assert\PositiveOrZero]
     private ?int $totalFee = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '预估收入(分)'])]
+    #[Assert\PositiveOrZero]
+    #[Assert\Range(min: 0, max: 999999999)]
     private ?int $totalCommission = null;
 
-        public function getTotalCommission(): ?int
+    public function getTotalCommission(): ?int
     {
         return $this->totalCommission;
     }
 
-    public function setTotalCommission(int $totalCommission): static
+    public function setTotalCommission(int $totalCommission): void
     {
         $this->totalCommission = $totalCommission;
-
-        return $this;
     }
 
     public function getTotalFee(): ?int
@@ -69,11 +80,9 @@ class RebateGoodsData implements \Stringable
         return $this->totalFee;
     }
 
-    public function setTotalFee(int $totalFee): static
+    public function setTotalFee(int $totalFee): void
     {
         $this->totalFee = $totalFee;
-
-        return $this;
     }
 
     public function getOrderRate(): ?string
@@ -81,11 +90,9 @@ class RebateGoodsData implements \Stringable
         return $this->orderRate;
     }
 
-    public function setOrderRate(string $orderRate): static
+    public function setOrderRate(string $orderRate): void
     {
         $this->orderRate = $orderRate;
-
-        return $this;
     }
 
     public function getOrderCount(): ?int
@@ -93,11 +100,9 @@ class RebateGoodsData implements \Stringable
         return $this->orderCount;
     }
 
-    public function setOrderCount(int $orderCount): static
+    public function setOrderCount(int $orderCount): void
     {
         $this->orderCount = $orderCount;
-
-        return $this;
     }
 
     public function getClickRate(): ?string
@@ -105,11 +110,9 @@ class RebateGoodsData implements \Stringable
         return $this->clickRate;
     }
 
-    public function setClickRate(string $clickRate): static
+    public function setClickRate(string $clickRate): void
     {
         $this->clickRate = $clickRate;
-
-        return $this;
     }
 
     public function getClickCount(): ?int
@@ -117,11 +120,9 @@ class RebateGoodsData implements \Stringable
         return $this->clickCount;
     }
 
-    public function setClickCount(int $clickCount): static
+    public function setClickCount(int $clickCount): void
     {
         $this->clickCount = $clickCount;
-
-        return $this;
     }
 
     public function getExposureCount(): ?int
@@ -129,11 +130,9 @@ class RebateGoodsData implements \Stringable
         return $this->exposureCount;
     }
 
-    public function setExposureCount(int $exposureCount): static
+    public function setExposureCount(int $exposureCount): void
     {
         $this->exposureCount = $exposureCount;
-
-        return $this;
     }
 
     public function getAccount(): Account
@@ -141,11 +140,9 @@ class RebateGoodsData implements \Stringable
         return $this->account;
     }
 
-    public function setAccount(Account $account): static
+    public function setAccount(Account $account): void
     {
         $this->account = $account;
-
-        return $this;
     }
 
     public function getDate(): ?\DateTimeInterface
@@ -153,12 +150,11 @@ class RebateGoodsData implements \Stringable
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): static
+    public function setDate(\DateTimeInterface $date): void
     {
         $this->date = $date;
-
-        return $this;
     }
+
     public function __toString(): string
     {
         return (string) $this->id;

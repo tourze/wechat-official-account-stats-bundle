@@ -1,52 +1,110 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Tests\Repository;
 
-use Doctrine\Persistence\ManagerRegistry;
-use PHPUnit\Framework\TestCase;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractRepositoryTestCase;
+use WechatOfficialAccountBundle\Entity\Account;
+use WechatOfficialAccountStatsBundle\Entity\ImageTextStatistics;
 use WechatOfficialAccountStatsBundle\Repository\ImageTextStatisticsRepository;
 
-class ImageTextStatisticsRepositoryTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(ImageTextStatisticsRepository::class)]
+#[RunTestsInSeparateProcesses]
+final class ImageTextStatisticsRepositoryTest extends AbstractRepositoryTestCase
 {
-    /**
-     * 测试仓库构造函数是否接受正确的实体类类名
-     */
-    public function testRepositoryConstruction(): void
+    private ImageTextStatisticsRepository $repository;
+
+    public function testCanBeInstantiated(): void
     {
-        $registry = $this->createMock(ManagerRegistry::class);
+        $this->assertInstanceOf(ImageTextStatisticsRepository::class, $this->repository);
+    }
 
-        // 测试能否正确实例化仓库
-        $repository = new ImageTextStatisticsRepository($registry);
+    public function testSave(): void
+    {
+        $account = $this->createAccount();
+        $entity = new ImageTextStatistics();
+        $entity->setAccount($account);
+        $entity->setDate(new \DateTimeImmutable());
 
-        $this->assertInstanceOf(ImageTextStatisticsRepository::class, $repository);
+        $this->repository->save($entity, true);
+
+        $this->assertNotNull($entity->getId());
+        $found = $this->repository->find($entity->getId());
+        $this->assertInstanceOf(ImageTextStatistics::class, $found);
+        $this->assertEquals($entity->getDate(), $found->getDate());
+    }
+
+    public function testSaveWithoutFlush(): void
+    {
+        $account = $this->createAccount();
+        $entity = new ImageTextStatistics();
+        $entity->setAccount($account);
+        $entity->setDate(new \DateTimeImmutable());
+
+        $this->repository->save($entity, false);
+        self::getEntityManager()->flush();
+
+        $this->assertNotNull($entity->getId());
+        $found = $this->repository->find($entity->getId());
+        $this->assertInstanceOf(ImageTextStatistics::class, $found);
+    }
+
+    public function testRemove(): void
+    {
+        $account = $this->createAccount();
+        $entity = new ImageTextStatistics();
+        $entity->setAccount($account);
+        $entity->setDate(new \DateTimeImmutable());
+        $this->repository->save($entity, true);
+        $id = $entity->getId();
+
+        $this->repository->remove($entity, true);
+
+        $this->assertNull($this->repository->find($id));
+    }
+
+    protected function onSetUp(): void
+    {
+        $this->repository = self::getService(ImageTextStatisticsRepository::class);
+    }
+
+    private function createAccount(): Account
+    {
+        $account = new Account();
+        $account->setName('Test Account ' . uniqid());
+        $account->setAppId('test_app_id_' . uniqid());
+        $account->setAppSecret('test_secret');
+        $account->setToken('test_token');
+        $account->setEncodingAesKey('test_encoding_key');
+
+        self::getEntityManager()->persist($account);
+        self::getEntityManager()->flush();
+
+        return $account;
+    }
+
+    protected function createNewEntity(): object
+    {
+        $account = $this->createAccount();
+        $entity = new ImageTextStatistics();
+        $entity->setAccount($account);
+        $entity->setDate(new \DateTimeImmutable());
+
+        return $entity;
     }
 
     /**
-     * 测试仓库类是否与正确的实体类关联
+     * @return ServiceEntityRepository<ImageTextStatistics>
      */
-    public function testRepositoryEntityClassAssociation(): void
+    protected function getRepository(): ServiceEntityRepository
     {
-        // 验证实体类名被正确传递给父类构造函数
-        $constructorBody = $this->getConstructorBody(ImageTextStatisticsRepository::class);
-        $this->assertStringContainsString('ImageTextStatistics::class', $constructorBody, '构造函数应传递 ImageTextStatistics::class 给父类');
-    }
-
-    /**
-     * 获取类构造函数的代码内容
-     */
-    private function getConstructorBody(string $className): string
-    {
-        $reflection = new \ReflectionClass($className);
-        if (!$reflection->hasMethod('__construct')) {
-            return '';
-        }
-
-        $constructor = $reflection->getMethod('__construct');
-        $filename = $constructor->getFileName();
-        $startLine = $constructor->getStartLine();
-        $endLine = $constructor->getEndLine();
-
-        $fileContent = file($filename);
-        return implode('', array_slice($fileContent, $startLine - 1, $endLine - $startLine + 1));
+        return $this->repository;
     }
 }

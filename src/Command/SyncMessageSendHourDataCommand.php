@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Command;
 
 use Carbon\CarbonImmutable;
@@ -11,10 +13,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Tourze\Symfony\CronJob\Attribute\AsCronTask;
 use WechatOfficialAccountBundle\Repository\AccountRepository;
 use WechatOfficialAccountBundle\Service\OfficialAccountClient;
-use WechatOfficialAccountStatsBundle\Entity\MessageSendHourData;
-use WechatOfficialAccountStatsBundle\Enum\MessageSendDataTypeEnum;
-use WechatOfficialAccountStatsBundle\Repository\MessageSendHourDataRepository;
 use WechatOfficialAccountStatsBundle\Request\GetMessageSendHourDataRequest;
+use WechatOfficialAccountStatsBundle\Service\MessageSendHourDataProcessor;
 
 /**
  * 获取消息发送分时数据
@@ -30,7 +30,7 @@ class SyncMessageSendHourDataCommand extends Command
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
-        private readonly MessageSendHourDataRepository $messageSendHourDataRepository,
+        private readonly MessageSendHourDataProcessor $dataProcessor,
         private readonly EntityManagerInterface $entityManager,
         ?string $name = null,
     ) {
@@ -45,25 +45,13 @@ class SyncMessageSendHourDataCommand extends Command
             $request->setBeginDate(CarbonImmutable::now()->subDays());
             $request->setEndDate(CarbonImmutable::now()->subDays());
             $response = $this->client->request($request);
-            foreach ($response['list'] as $item) {
-                $date = CarbonImmutable::parse($item['ref_date']);
-                $messageSendHourData = $this->messageSendHourDataRepository->findOneBy([
-                    'account' => $account,
-                    'date' => $date,
-                    'refHour' => $item['ref_hour'],
-                ]);
-                if ($messageSendHourData === null) {
-                    $messageSendHourData = new MessageSendHourData();
-                    $messageSendHourData->setAccount($account);
-                    $messageSendHourData->setDate($date);
-                    $messageSendHourData->setRefHour($item['ref_hour']);
-                }
-                $messageSendHourData->setMsgType(MessageSendDataTypeEnum::tryFrom($item['msg_type']));
-                $messageSendHourData->setMsgUser($item['msg_user']);
-                $messageSendHourData->setMsgCount($item['msg_count']);
-                $this->entityManager->persist($messageSendHourData);
-                $this->entityManager->flush();
+
+            if (!is_array($response)) {
+                continue;
             }
+
+            $this->dataProcessor->processResponse($account, $response);
+            $this->entityManager->flush();
         }
 
         return Command::SUCCESS;

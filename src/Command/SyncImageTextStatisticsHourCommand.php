@@ -1,26 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Command;
 
 use Carbon\CarbonImmutable;
-use Doctrine\ORM\EntityManagerInterface;
+use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Tourze\Symfony\CronJob\Attribute\AsCronTask;
+use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountBundle\Repository\AccountRepository;
 use WechatOfficialAccountBundle\Service\OfficialAccountClient;
-use WechatOfficialAccountStatsBundle\Entity\ImageTextStatisticsHour;
-use WechatOfficialAccountStatsBundle\Repository\ImageTextStatisticsHourRepository;
 use WechatOfficialAccountStatsBundle\Request\GetUserReadHourRequest;
+use WechatOfficialAccountStatsBundle\Service\ImageTextStatisticsHourProcessor;
 
 /**
  * 获取图文统计分时数据
  *
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/Graphic_Analysis_Data_Interface.html
  */
+#[WithMonologChannel(channel: 'wechat_official_account_stats')]
 #[AsCronTask(expression: '0 12 * * *')]
 #[AsCommand(name: self::NAME, description: '公众号-获取图文统计分时数据')]
 class SyncImageTextStatisticsHourCommand extends Command
@@ -30,9 +33,8 @@ class SyncImageTextStatisticsHourCommand extends Command
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
-        private readonly ImageTextStatisticsHourRepository $imageTextStatisticsHourRepository,
+        private readonly ImageTextStatisticsHourProcessor $dataProcessor,
         private readonly LoggerInterface $logger,
-        private readonly EntityManagerInterface $entityManager,
     ) {
         parent::__construct();
     }
@@ -40,44 +42,46 @@ class SyncImageTextStatisticsHourCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         foreach ($this->accountRepository->findBy(['valid' => true]) as $account) {
-            $request = new GetUserReadHourRequest();
-            $request->setAccount($account);
-            $request->setBeginDate(CarbonImmutable::now()->subDays());
-            $request->setEndDate(CarbonImmutable::now()->subDays());
-            $response = $this->client->request($request);
-            if (!isset($response['list'])) {
-                $this->logger->error('获取累计用户数据发生错误', [
+            try {
+                $this->processAccount($account);
+            } catch (\Throwable $e) {
+                $this->logger->error('处理账户图文统计分时数据失败', [
                     'account' => $account,
-                    'response' => $response,
+                    'error' => $e->getMessage(),
                 ]);
                 continue;
-            }
-
-            foreach ($response['list'] as $item) {
-                $date = CarbonImmutable::parse($item['ref_date']);
-                $imageTextStatisticsHour = $this->imageTextStatisticsHourRepository->findOneBy([
-                    'account' => $account,
-                    'date' => $date,
-                ]);
-                if ($imageTextStatisticsHour === null) {
-                    $imageTextStatisticsHour = new ImageTextStatisticsHour();
-                    $imageTextStatisticsHour->setAccount($account);
-                    $imageTextStatisticsHour->setDate($date);
-                }
-                $imageTextStatisticsHour->setRefHour($item['ref_hour']);
-                $imageTextStatisticsHour->setIntPageReadUser($item['int_page_read_user']);
-                $imageTextStatisticsHour->setIntPageReadCount($item['int_page_read_count']);
-                $imageTextStatisticsHour->setOriPageReadUser($item['ori_page_read_user']);
-                $imageTextStatisticsHour->setOriPageReadCount($item['ori_page_read_count']);
-                $imageTextStatisticsHour->setShareUser($item['share_user']);
-                $imageTextStatisticsHour->setShareCount($item['share_count']);
-                $imageTextStatisticsHour->setAddToFavUser($item['add_to_fav_user']);
-                $imageTextStatisticsHour->setAddToFavCount($item['add_to_fav_count']);
-                $this->entityManager->persist($imageTextStatisticsHour);
-                $this->entityManager->flush();
             }
         }
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * 处理单个账户
+     */
+    private function processAccount(Account $account): void
+    {
+        $request = new GetUserReadHourRequest();
+        $request->setAccount($account);
+
+        // 使用Carbon
+        $yesterday = CarbonImmutable::yesterday();
+        $request->setBeginDate($yesterday);
+        $request->setEndDate($yesterday);
+
+        $response = $this->client->request($request);
+
+        if (!is_array($response)) {
+            $this->logger->error('API响应格式错误', [
+                'account' => $account,
+                'response' => $response,
+            ]);
+
+            return;
+        }
+
+        /** @var array<string, mixed> $typedResponse */
+        $typedResponse = $response;
+        $this->dataProcessor->processResponse($typedResponse, $account);
     }
 }

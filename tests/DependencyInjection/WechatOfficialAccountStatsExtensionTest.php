@@ -1,41 +1,53 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Tests\DependencyInjection;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Tourze\PHPUnitSymfonyUnitTest\AbstractDependencyInjectionExtensionTestCase;
 use WechatOfficialAccountStatsBundle\DependencyInjection\WechatOfficialAccountStatsExtension;
 
-class WechatOfficialAccountStatsExtensionTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(WechatOfficialAccountStatsExtension::class)]
+final class WechatOfficialAccountStatsExtensionTest extends AbstractDependencyInjectionExtensionTestCase
 {
     private WechatOfficialAccountStatsExtension $extension;
+
     private ContainerBuilder $container;
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->extension = new WechatOfficialAccountStatsExtension();
         $this->container = new ContainerBuilder();
+        $this->container->setParameter('kernel.environment', 'test');
     }
 
     /**
      * 测试扩展能够正确加载
      */
-    public function testLoad_withEmptyConfig_loadsSuccessfully(): void
+    public function testLoadWithEmptyConfigLoadsSuccessfully(): void
     {
         $configs = [];
-        
-        // 测试扩展能够加载而不抛出异常
+
+        // 测试扩展加载不会抛出异常
         $this->extension->load($configs, $this->container);
-        
-        $this->assertTrue(true); // 如果到达这里，说明加载成功
+
+        // 验证容器已被正确配置
+        $this->assertInstanceOf(ContainerBuilder::class, $this->container);
     }
 
     /**
      * 测试扩展别名
      */
-    public function testGetAlias_returnsCorrectAlias(): void
+    public function testGetAliasReturnsCorrectAlias(): void
     {
         $expectedAlias = 'wechat_official_account_stats';
+
         $this->assertSame($expectedAlias, $this->extension->getAlias());
     }
 }

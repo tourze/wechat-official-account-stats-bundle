@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Command;
 
 use Carbon\CarbonImmutable;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
+use Monolog\Attribute\WithMonologChannel;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,14 +14,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Tourze\Symfony\CronJob\Attribute\AsCronTask;
 use WechatOfficialAccountBundle\Repository\AccountRepository;
 use WechatOfficialAccountBundle\Service\OfficialAccountClient;
-use WechatOfficialAccountStatsBundle\Entity\UserSummary;
-use WechatOfficialAccountStatsBundle\Enum\UserSummarySource;
-use WechatOfficialAccountStatsBundle\Repository\UserSummaryRepository;
 use WechatOfficialAccountStatsBundle\Request\GetUserSummaryRequest;
+use WechatOfficialAccountStatsBundle\Service\UserSummaryDataProcessor;
 
 /**
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/User_Analysis_Data_Interface.html
  */
+#[WithMonologChannel(channel: 'wechat_official_account_stats')]
 #[AsCronTask(expression: '4 3 * * *')]
 #[AsCommand(name: self::NAME, description: '公众号-获取用户增减数据')]
 class SyncUserSummaryCommand extends Command
@@ -29,8 +30,7 @@ class SyncUserSummaryCommand extends Command
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
-        private readonly UserSummaryRepository $summaryRepository,
-        private readonly LoggerInterface $logger,
+        private readonly UserSummaryDataProcessor $dataProcessor,
         private readonly EntityManagerInterface $entityManager,
     ) {
         parent::__construct();
@@ -40,46 +40,20 @@ class SyncUserSummaryCommand extends Command
     {
         $endDate = CarbonImmutable::yesterday();
         $startDate = $endDate->subDays(6);
+
         foreach ($this->accountRepository->findBy(['valid' => true]) as $account) {
             $request = new GetUserSummaryRequest();
             $request->setAccount($account);
             $request->setBeginDate($startDate);
             $request->setEndDate($endDate);
+
             $response = $this->client->request($request);
-            if (!isset($response['list'])) {
-                $this->logger->error('获取用户增减数据发生错误', [
-                    'account' => $account,
-                    'response' => $response,
-                ]);
-                continue;
+
+            if (is_array($response)) {
+                $this->dataProcessor->processResponse($account, $response);
             }
 
-            foreach ($response['list'] as $item) {
-                $date = CarbonImmutable::parse($item['ref_date'])->startOfDay();
-                $source = UserSummarySource::tryFrom($item['user_source']);
-                if ($source === null) {
-                    $this->logger->error('发生未知的数据来源', [
-                        'item' => $item,
-                    ]);
-                    continue;
-                }
-
-                $summary = $this->summaryRepository->findOneBy([
-                    'account' => $account,
-                    'date' => $date,
-                    'source' => $source,
-                ]);
-                if ($summary === null) {
-                    $summary = new UserSummary();
-                    $summary->setAccount($account);
-                    $summary->setDate($date);
-                    $summary->setSource($source);
-                }
-                $summary->setNewUser($item['new_user']);
-                $summary->setCancelUser($item['cancel_user']);
-                $this->entityManager->persist($summary);
-                $this->entityManager->flush();
-            }
+            $this->entityManager->flush();
         }
 
         return Command::SUCCESS;

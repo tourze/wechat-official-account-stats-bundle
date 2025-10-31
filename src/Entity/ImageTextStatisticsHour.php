@@ -1,73 +1,85 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountStatsBundle\Repository\ImageTextStatisticsHourRepository;
 
 #[ORM\Entity(repositoryClass: ImageTextStatisticsHourRepository::class)]
 #[ORM\Table(name: 'wechat_official_image_text_statistics_hour', options: ['comment' => '图文统计分时数据'])]
-#[ORM\UniqueConstraint(name: 'wechat_official_image_text_statistics_hour_uniq', columns: ['account_id', 'date'])]
+#[ORM\UniqueConstraint(name: 'wechat_official_image_text_statistics_hour_uniq', columns: ['account_id', 'date', 'ref_hour'])]
 class ImageTextStatisticsHour implements \Stringable
 {
     use TimestampableAware;
-            #[ORM\Id]
+
+    #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
-    private ?int $id = 0;
+    private int $id = 0;
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
 
-            #[ORM\ManyToOne]
+    #[ORM\ManyToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Account $account;
 
-        #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
+    #[Assert\NotNull]
     private ?\DateTimeInterface $date = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '数据的小时'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '数据的小时'])]
+    #[Assert\Range(min: 0, max: 23)]
     private ?int $refHour = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '图文页（点击群发图文卡片进入的页面）的阅读人数'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '图文页（点击群发图文卡片进入的页面）的阅读人数'])]
+    #[Assert\PositiveOrZero]
     private ?int $intPageReadUser = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '图文页的阅读次数'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '图文页的阅读次数'])]
+    #[Assert\PositiveOrZero]
     private ?int $intPageReadCount = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '原文页（点击图文页“阅读原文”进入的页面）的阅读人数，无原文页时此处数据为0'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '原文页（点击图文页“阅读原文”进入的页面）的阅读人数，无原文页时此处数据为0'])]
+    #[Assert\PositiveOrZero]
     private ?int $oriPageReadUser = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '原文页的阅读次数'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '原文页的阅读次数'])]
+    #[Assert\PositiveOrZero]
     private ?int $oriPageReadCount = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '分享的人数'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '分享的人数'])]
+    #[Assert\PositiveOrZero]
     private ?int $shareUser = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '分享的次数'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '分享的次数'])]
+    #[Assert\PositiveOrZero]
     private ?int $shareCount = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '收藏的人数'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '收藏的人数'])]
+    #[Assert\PositiveOrZero]
     private ?int $addToFavUser = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '收藏的次数'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '收藏的次数'])]
+    #[Assert\PositiveOrZero]
     private ?int $addToFavCount = null;
 
-        public function getAddToFavCount(): ?int
+    public function getAddToFavCount(): ?int
     {
         return $this->addToFavCount;
     }
 
-    public function setAddToFavCount(int $addToFavCount): static
+    public function setAddToFavCount(int $addToFavCount): void
     {
         $this->addToFavCount = $addToFavCount;
-
-        return $this;
     }
 
     public function getAddToFavUser(): ?int
@@ -75,11 +87,9 @@ class ImageTextStatisticsHour implements \Stringable
         return $this->addToFavUser;
     }
 
-    public function setAddToFavUser(int $addToFavUser): static
+    public function setAddToFavUser(int $addToFavUser): void
     {
         $this->addToFavUser = $addToFavUser;
-
-        return $this;
     }
 
     public function getShareCount(): ?int
@@ -87,11 +97,9 @@ class ImageTextStatisticsHour implements \Stringable
         return $this->shareCount;
     }
 
-    public function setShareCount(int $shareCount): static
+    public function setShareCount(int $shareCount): void
     {
         $this->shareCount = $shareCount;
-
-        return $this;
     }
 
     public function getShareUser(): ?int
@@ -99,11 +107,9 @@ class ImageTextStatisticsHour implements \Stringable
         return $this->shareUser;
     }
 
-    public function setShareUser(int $shareUser): static
+    public function setShareUser(int $shareUser): void
     {
         $this->shareUser = $shareUser;
-
-        return $this;
     }
 
     public function getOriPageReadCount(): ?int
@@ -111,11 +117,9 @@ class ImageTextStatisticsHour implements \Stringable
         return $this->oriPageReadCount;
     }
 
-    public function setOriPageReadCount(int $oriPageReadCount): static
+    public function setOriPageReadCount(int $oriPageReadCount): void
     {
         $this->oriPageReadCount = $oriPageReadCount;
-
-        return $this;
     }
 
     public function getOriPageReadUser(): ?int
@@ -123,11 +127,9 @@ class ImageTextStatisticsHour implements \Stringable
         return $this->oriPageReadUser;
     }
 
-    public function setOriPageReadUser(int $oriPageReadUser): static
+    public function setOriPageReadUser(int $oriPageReadUser): void
     {
         $this->oriPageReadUser = $oriPageReadUser;
-
-        return $this;
     }
 
     public function getIntPageReadCount(): ?int
@@ -135,11 +137,9 @@ class ImageTextStatisticsHour implements \Stringable
         return $this->intPageReadCount;
     }
 
-    public function setIntPageReadCount(int $intPageReadCount): static
+    public function setIntPageReadCount(int $intPageReadCount): void
     {
         $this->intPageReadCount = $intPageReadCount;
-
-        return $this;
     }
 
     public function getIntPageReadUser(): ?int
@@ -147,11 +147,9 @@ class ImageTextStatisticsHour implements \Stringable
         return $this->intPageReadUser;
     }
 
-    public function setIntPageReadUser(int $intPageReadUser): static
+    public function setIntPageReadUser(int $intPageReadUser): void
     {
         $this->intPageReadUser = $intPageReadUser;
-
-        return $this;
     }
 
     public function getRefHour(): ?int
@@ -159,11 +157,9 @@ class ImageTextStatisticsHour implements \Stringable
         return $this->refHour;
     }
 
-    public function setRefHour(int $refHour): static
+    public function setRefHour(int $refHour): void
     {
         $this->refHour = $refHour;
-
-        return $this;
     }
 
     public function getAccount(): Account
@@ -171,11 +167,9 @@ class ImageTextStatisticsHour implements \Stringable
         return $this->account;
     }
 
-    public function setAccount(Account $account): static
+    public function setAccount(Account $account): void
     {
         $this->account = $account;
-
-        return $this;
     }
 
     public function getDate(): ?\DateTimeInterface
@@ -183,12 +177,11 @@ class ImageTextStatisticsHour implements \Stringable
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): static
+    public function setDate(\DateTimeInterface $date): void
     {
         $this->date = $date;
-
-        return $this;
     }
+
     public function __toString(): string
     {
         return (string) $this->id;

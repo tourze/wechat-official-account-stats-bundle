@@ -1,22 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Tests;
 
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpKernel\Bundle\Bundle;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractBundleTestCase;
 use WechatOfficialAccountStatsBundle\WechatOfficialAccountStatsBundle;
 
-class WechatOfficialAccountStatsBundleTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(WechatOfficialAccountStatsBundle::class)]
+#[RunTestsInSeparateProcesses]
+final class WechatOfficialAccountStatsBundleTest extends AbstractBundleTestCase
 {
-    public function testBundleExtendsBundle(): void
-    {
-        $bundle = new WechatOfficialAccountStatsBundle();
-        $this->assertInstanceOf(Bundle::class, $bundle);
-    }
-
-    public function testBundleName(): void
-    {
-        $bundle = new WechatOfficialAccountStatsBundle();
-        $this->assertSame('WechatOfficialAccountStatsBundle', $bundle->getName());
-    }
 }

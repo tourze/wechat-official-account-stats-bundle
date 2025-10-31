@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Command;
 
 use Carbon\CarbonImmutable;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
+use Monolog\Attribute\WithMonologChannel;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,13 +14,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Tourze\Symfony\CronJob\Attribute\AsCronTask;
 use WechatOfficialAccountBundle\Repository\AccountRepository;
 use WechatOfficialAccountBundle\Service\OfficialAccountClient;
-use WechatOfficialAccountStatsBundle\Entity\UserCumulate;
-use WechatOfficialAccountStatsBundle\Repository\UserCumulateRepository;
 use WechatOfficialAccountStatsBundle\Request\GetUserCumulateRequest;
+use WechatOfficialAccountStatsBundle\Service\UserCumulateDataProcessor;
 
 /**
  * @see https://developers.weixin.qq.com/doc/offiaccount/Analytics/User_Analysis_Data_Interface.html
  */
+#[WithMonologChannel(channel: 'wechat_official_account_stats')]
 #[AsCronTask(expression: '4 3 * * *')]
 #[AsCommand(name: self::NAME, description: '公众号-获取累计用户数据')]
 class SyncUserCumulateCommand extends Command
@@ -28,8 +30,7 @@ class SyncUserCumulateCommand extends Command
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
-        private readonly UserCumulateRepository $cumulateRepository,
-        private readonly LoggerInterface $logger,
+        private readonly UserCumulateDataProcessor $dataProcessor,
         private readonly EntityManagerInterface $entityManager,
     ) {
         parent::__construct();
@@ -39,36 +40,20 @@ class SyncUserCumulateCommand extends Command
     {
         $endDate = CarbonImmutable::yesterday();
         $startDate = $endDate->subDays(6);
+
         foreach ($this->accountRepository->findBy(['valid' => true]) as $account) {
             $request = new GetUserCumulateRequest();
             $request->setAccount($account);
             $request->setBeginDate($startDate);
             $request->setEndDate($endDate);
+
             $response = $this->client->request($request);
-            if (!isset($response['list'])) {
-                $this->logger->error('获取累计用户数据发生错误', [
-                    'account' => $account,
-                    'response' => $response,
-                ]);
-                continue;
+
+            if (is_array($response)) {
+                $this->dataProcessor->processResponse($account, $response);
             }
 
-            foreach ($response['list'] as $item) {
-                $date = CarbonImmutable::parse($item['ref_date'])->startOfDay();
-
-                $cumulate = $this->cumulateRepository->findOneBy([
-                    'account' => $account,
-                    'date' => $date,
-                ]);
-                if ($cumulate === null) {
-                    $cumulate = new UserCumulate();
-                    $cumulate->setAccount($account);
-                    $cumulate->setDate($date);
-                }
-                $cumulate->setCumulateUser($item['cumulate_user']);
-                $this->entityManager->persist($cumulate);
-                $this->entityManager->flush();
-            }
+            $this->entityManager->flush();
         }
 
         return Command::SUCCESS;

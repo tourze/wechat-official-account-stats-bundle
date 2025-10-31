@@ -1,21 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Tourze\PHPUnitSymfonyKernelTest\Attribute\AsRepository;
 use WechatOfficialAccountStatsBundle\Entity\ImageTextStatistics;
 
 /**
- * @method ImageTextStatistics|null find($id, $lockMode = null, $lockVersion = null)
- * @method ImageTextStatistics|null findOneBy(array $criteria, array $orderBy = null)
- * @method ImageTextStatistics[]    findAll()
- * @method ImageTextStatistics[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @extends ServiceEntityRepository<ImageTextStatistics>
  */
+#[AsRepository(entityClass: ImageTextStatistics::class)]
 class ImageTextStatisticsRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, ImageTextStatistics::class);
+    }
+
+    public function save(ImageTextStatistics $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->persist($entity);
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(ImageTextStatistics $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->remove($entity);
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Command;
 
 use Carbon\CarbonImmutable;
@@ -11,10 +13,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Tourze\Symfony\CronJob\Attribute\AsCronTask;
 use WechatOfficialAccountBundle\Repository\AccountRepository;
 use WechatOfficialAccountBundle\Service\OfficialAccountClient;
-use WechatOfficialAccountStatsBundle\Entity\MessageSenDistData;
-use WechatOfficialAccountStatsBundle\Enum\MessageSendDataCountIntervalEnum;
-use WechatOfficialAccountStatsBundle\Repository\MessageSenDistDataRepository;
 use WechatOfficialAccountStatsBundle\Request\MessageSendDistDataRequest;
+use WechatOfficialAccountStatsBundle\Service\MessageSendDistDataProcessor;
 
 /**
  * 获取消息发送分布数据
@@ -30,7 +30,7 @@ class SyncMessageSendDIstDataCommand extends Command
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
-        private readonly MessageSenDistDataRepository $messageSenDistDataRepository,
+        private readonly MessageSendDistDataProcessor $dataProcessor,
         private readonly EntityManagerInterface $entityManager,
         ?string $name = null,
     ) {
@@ -44,23 +44,14 @@ class SyncMessageSendDIstDataCommand extends Command
             $request->setAccount($account);
             $request->setBeginDate(CarbonImmutable::now()->subDays());
             $request->setEndDate(CarbonImmutable::now()->subDays());
+
             $response = $this->client->request($request);
-            foreach ($response['list'] as $item) {
-                $date = CarbonImmutable::parse($item['ref_date']);
-                $MessageSenDistData = $this->messageSenDistDataRepository->findOneBy([
-                    'account' => $account,
-                    'date' => $date,
-                ]);
-                if ($MessageSenDistData === null) {
-                    $MessageSenDistData = new MessageSenDistData();
-                    $MessageSenDistData->setAccount($account);
-                    $MessageSenDistData->setDate($date);
-                }
-                $MessageSenDistData->setCountInterval(MessageSendDataCountIntervalEnum::tryFrom($item['count_interval']));
-                $MessageSenDistData->setMsgUser($item['msg_user']);
-                $this->entityManager->persist($MessageSenDistData);
-                $this->entityManager->flush();
+
+            if (is_array($response)) {
+                $this->dataProcessor->processResponse($account, $response);
             }
+
+            $this->entityManager->flush();
         }
 
         return Command::SUCCESS;

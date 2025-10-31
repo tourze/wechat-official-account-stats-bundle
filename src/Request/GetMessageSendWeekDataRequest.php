@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Request;
 
 use Carbon\CarbonInterface;
@@ -27,6 +29,9 @@ class GetMessageSendWeekDataRequest extends WithAccountRequest
         return 'https://api.weixin.qq.com/datacube/getupstreammsgweek';
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getRequestOptions(): ?array
     {
         $json = [

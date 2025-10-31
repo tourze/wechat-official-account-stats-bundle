@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountStatsBundle\Repository\InterfaceSummaryRepository;
@@ -14,31 +17,37 @@ use WechatOfficialAccountStatsBundle\Repository\InterfaceSummaryRepository;
 class InterfaceSummary implements \Stringable
 {
     use TimestampableAware;
-            #[ORM\Id]
+
+    #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
-    private ?int $id = 0;
+    private int $id = 0;
 
-            #[ORM\ManyToOne]
+    #[ORM\ManyToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Account $account;
 
-        #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
+    #[Assert\NotNull]
     private ?\DateTimeInterface $date = null;
 
     #[ORM\Column(length: 60, nullable: true, options: ['comment' => '通过服务器配置地址获得消息后，被动回复用户消息的次数'])]
+    #[Assert\PositiveOrZero]
     private ?int $callbackCount = null;
 
     #[ORM\Column(length: 60, nullable: true, options: ['comment' => '上述动作的失败次数'])]
+    #[Assert\PositiveOrZero]
     private ?int $failCount = null;
 
     #[ORM\Column(length: 60, nullable: true, options: ['comment' => '总耗时，除以callback_count即为平均耗时'])]
+    #[Assert\PositiveOrZero]
     private ?int $totalTimeCost = null;
 
     #[ORM\Column(length: 60, nullable: true, options: ['comment' => '最大耗时'])]
+    #[Assert\PositiveOrZero]
     private ?int $maxTimeCost = null;
 
-        public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
@@ -98,12 +107,11 @@ class InterfaceSummary implements \Stringable
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): static
+    public function setDate(\DateTimeInterface $date): void
     {
         $this->date = $date;
-
-        return $this;
     }
+
     public function __toString(): string
     {
         return (string) $this->id;

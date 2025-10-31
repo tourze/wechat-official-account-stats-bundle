@@ -1,52 +1,90 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Tests\Repository;
 
-use Doctrine\Persistence\ManagerRegistry;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractRepositoryTestCase;
+use WechatOfficialAccountBundle\Entity\Account;
+use WechatOfficialAccountStatsBundle\Entity\RebateGoodsData;
 use WechatOfficialAccountStatsBundle\Repository\RebateGoodsDataRepository;
 
-class RebateGoodsDataRepositoryTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(RebateGoodsDataRepository::class)]
+#[RunTestsInSeparateProcesses]
+final class RebateGoodsDataRepositoryTest extends AbstractRepositoryTestCase
 {
-    /**
-     * 测试仓库构造函数是否接受正确的实体类类名
-     */
-    public function testRepositoryConstruction(): void
+    private RebateGoodsDataRepository $repository;
+
+    protected function onSetUp(): void
     {
-        $registry = $this->createMock(ManagerRegistry::class);
-
-        // 测试能否正确实例化仓库
-        $repository = new RebateGoodsDataRepository($registry);
-
-        $this->assertInstanceOf(RebateGoodsDataRepository::class, $repository);
+        $this->repository = self::getService(RebateGoodsDataRepository::class);
     }
 
-    /**
-     * 测试仓库类是否与正确的实体类关联
-     */
-    public function testRepositoryEntityClassAssociation(): void
+    public function testRepositoryInstanceShouldReturnCorrectInstance(): void
     {
-        // 验证实体类名被正确传递给父类构造函数
-        $constructorBody = $this->getConstructorBody(RebateGoodsDataRepository::class);
-        $this->assertStringContainsString('RebateGoodsData::class', $constructorBody, '构造函数应传递 RebateGoodsData::class 给父类');
+        $this->assertInstanceOf(RebateGoodsDataRepository::class, $this->repository);
     }
 
-    /**
-     * 获取类构造函数的代码内容
-     */
-    private function getConstructorBody(string $className): string
+    public function testSaveShouldPersistEntity(): void
     {
-        $reflection = new \ReflectionClass($className);
-        if (!$reflection->hasMethod('__construct')) {
-            return '';
-        }
+        $account = $this->createAccount();
+        $entity = new RebateGoodsData();
+        $entity->setAccount($account);
+        $entity->setDate(new \DateTimeImmutable());
 
-        $constructor = $reflection->getMethod('__construct');
-        $filename = $constructor->getFileName();
-        $startLine = $constructor->getStartLine();
-        $endLine = $constructor->getEndLine();
+        $this->repository->save($entity);
 
-        $fileContent = file($filename);
-        return implode('', array_slice($fileContent, $startLine - 1, $endLine - $startLine + 1));
+        $this->assertGreaterThan(0, $entity->getId());
+    }
+
+    public function testRemoveShouldDeleteEntity(): void
+    {
+        $account = $this->createAccount();
+        $entity = new RebateGoodsData();
+        $entity->setAccount($account);
+        $entity->setDate(new \DateTimeImmutable());
+
+        $this->repository->save($entity);
+        $id = $entity->getId();
+
+        $this->repository->remove($entity);
+
+        $deletedEntity = $this->repository->find($id);
+        $this->assertNull($deletedEntity);
+    }
+
+    private function createAccount(): Account
+    {
+        $account = new Account();
+        $account->setName('Test Account ' . uniqid());
+        $account->setAppId('test_app_id_' . uniqid());
+        $account->setAppSecret('test_secret');
+        $account->setToken('test_token');
+        $account->setEncodingAesKey('test_encoding_key');
+
+        $persistedAccount = $this->persistAndFlush($account);
+        $this->assertInstanceOf(Account::class, $persistedAccount);
+
+        return $persistedAccount;
+    }
+
+    protected function createNewEntity(): object
+    {
+        $account = $this->createAccount();
+        $entity = new RebateGoodsData();
+        $entity->setAccount($account);
+        $entity->setDate(new \DateTimeImmutable());
+
+        return $entity;
+    }
+
+    protected function getRepository(): RebateGoodsDataRepository
+    {
+        return $this->repository;
     }
 }

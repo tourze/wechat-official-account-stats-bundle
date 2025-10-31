@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Command;
 
 use Carbon\CarbonImmutable;
@@ -11,10 +13,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Tourze\Symfony\CronJob\Attribute\AsCronTask;
 use WechatOfficialAccountBundle\Repository\AccountRepository;
 use WechatOfficialAccountBundle\Service\OfficialAccountClient;
-use WechatOfficialAccountStatsBundle\Entity\MessageSendData;
-use WechatOfficialAccountStatsBundle\Enum\MessageSendDataTypeEnum;
-use WechatOfficialAccountStatsBundle\Repository\MessageSendDataRepository;
 use WechatOfficialAccountStatsBundle\Request\GetMessageSendDataRequest;
+use WechatOfficialAccountStatsBundle\Service\MessageSendDataProcessor;
 
 /**
  * 获取消息发送概况数据
@@ -30,7 +30,7 @@ class SyncMessageSendDataCommand extends Command
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
-        private readonly MessageSendDataRepository $messageSendDataRepository,
+        private readonly MessageSendDataProcessor $dataProcessor,
         private readonly EntityManagerInterface $entityManager,
         ?string $name = null,
     ) {
@@ -42,26 +42,16 @@ class SyncMessageSendDataCommand extends Command
         foreach ($this->accountRepository->findBy(['valid' => true]) as $account) {
             $request = new GetMessageSendDataRequest();
             $request->setAccount($account);
-            $request->setBeginDate(CarbonImmutable::now()->weekday(1)->subDays(7));
-            $request->setEndDate(CarbonImmutable::now()->weekday(6)->subDays(6));
+            $request->setBeginDate(CarbonImmutable::now()->startOfWeek()->subWeek());
+            $request->setEndDate(CarbonImmutable::now()->startOfWeek()->subDay());
+
             $response = $this->client->request($request);
-            foreach ($response['list'] as $item) {
-                $date = CarbonImmutable::parse($item['ref_date']);
-                $messageSendData = $this->messageSendDataRepository->findOneBy([
-                    'account' => $account,
-                    'date' => $date,
-                ]);
-                if ($messageSendData === null) {
-                    $messageSendData = new MessageSendData();
-                    $messageSendData->setAccount($account);
-                    $messageSendData->setDate($date);
-                }
-                $messageSendData->setMsgType(MessageSendDataTypeEnum::tryFrom($item['msg_type']));
-                $messageSendData->setMsgUser($item['msg_user']);
-                $messageSendData->setMsgCount($item['msg_count']);
-                $this->entityManager->persist($messageSendData);
-                $this->entityManager->flush();
+
+            if (is_array($response)) {
+                $this->dataProcessor->processResponse($account, $response);
             }
+
+            $this->entityManager->flush();
         }
 
         return Command::SUCCESS;

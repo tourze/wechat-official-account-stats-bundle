@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountStatsBundle\Repository\AdvertisingSpaceDataRepository;
@@ -14,60 +17,71 @@ use WechatOfficialAccountStatsBundle\Repository\AdvertisingSpaceDataRepository;
 class AdvertisingSpaceData implements \Stringable
 {
     use TimestampableAware;
-            #[ORM\Id]
+
+    #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
-    private ?int $id = 0;
+    private int $id = 0;
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
 
-        #[ORM\ManyToOne]
+    #[ORM\ManyToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Account $account;
 
-        #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
+    #[Assert\NotNull]
     private ?\DateTimeInterface $date = null;
 
-        #[ORM\Column(options: ['comment' => '广告位类型id'])]
+    #[ORM\Column(options: ['comment' => '广告位类型id'])]
+    #[Assert\NotNull]
+    #[Assert\PositiveOrZero]
     private ?int $slotId = null;
 
-        #[ORM\Column(options: ['comment' => '广告位类型名称'])]
+    #[ORM\Column(options: ['comment' => '广告位类型名称'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private ?string $adSlot = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '拉取量'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '拉取量'])]
+    #[Assert\PositiveOrZero]
     private ?int $reqSuccCount = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '曝光量'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '曝光量'])]
+    #[Assert\PositiveOrZero]
     private ?int $exposureCount = null;
 
-        #[ORM\Column(length: 60, nullable: true, options: ['comment' => '曝光率'])]
+    #[ORM\Column(length: 60, nullable: true, options: ['comment' => '曝光率'])]
+    #[Assert\Length(max: 60)]
     private ?string $exposureRate = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '点击量'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '点击量'])]
+    #[Assert\PositiveOrZero]
     private ?int $clickCount = null;
 
-        #[ORM\Column(length: 60, nullable: true, options: ['comment' => '点击率'])]
+    #[ORM\Column(length: 60, nullable: true, options: ['comment' => '点击率'])]
+    #[Assert\Length(max: 60)]
     private ?string $clickRate = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '收入(分)'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '收入(分)'])]
+    #[Assert\PositiveOrZero]
     private ?int $income = null;
 
-        #[ORM\Column(length: 70, nullable: true, options: ['comment' => '广告千次曝光收益(分)'])]
+    #[ORM\Column(length: 70, nullable: true, options: ['comment' => '广告千次曝光收益(分)'])]
+    #[Assert\Length(max: 70)]
     private ?string $ecpm = null;
 
-        public function getEcpm(): ?string
+    public function getEcpm(): ?string
     {
         return $this->ecpm;
     }
 
-    public function setEcpm(string $ecpm): static
+    public function setEcpm(string $ecpm): void
     {
         $this->ecpm = $ecpm;
-
-        return $this;
     }
 
     public function getIncome(): ?int
@@ -75,11 +89,9 @@ class AdvertisingSpaceData implements \Stringable
         return $this->income;
     }
 
-    public function setIncome(int $income): static
+    public function setIncome(int $income): void
     {
         $this->income = $income;
-
-        return $this;
     }
 
     public function getClickRate(): ?string
@@ -87,11 +99,9 @@ class AdvertisingSpaceData implements \Stringable
         return $this->clickRate;
     }
 
-    public function setClickRate(string $clickRate): static
+    public function setClickRate(string $clickRate): void
     {
         $this->clickRate = $clickRate;
-
-        return $this;
     }
 
     public function getClickCount(): ?int
@@ -99,11 +109,9 @@ class AdvertisingSpaceData implements \Stringable
         return $this->clickCount;
     }
 
-    public function setClickCount(int $clickCount): static
+    public function setClickCount(int $clickCount): void
     {
         $this->clickCount = $clickCount;
-
-        return $this;
     }
 
     public function getExposureRate(): ?string
@@ -111,11 +119,9 @@ class AdvertisingSpaceData implements \Stringable
         return $this->exposureRate;
     }
 
-    public function setExposureRate(string $exposureRate): static
+    public function setExposureRate(string $exposureRate): void
     {
         $this->exposureRate = $exposureRate;
-
-        return $this;
     }
 
     public function getExposureCount(): ?int
@@ -123,11 +129,9 @@ class AdvertisingSpaceData implements \Stringable
         return $this->exposureCount;
     }
 
-    public function setExposureCount(int $exposureCount): static
+    public function setExposureCount(int $exposureCount): void
     {
         $this->exposureCount = $exposureCount;
-
-        return $this;
     }
 
     public function getReqSuccCount(): ?int
@@ -135,11 +139,9 @@ class AdvertisingSpaceData implements \Stringable
         return $this->reqSuccCount;
     }
 
-    public function setReqSuccCount(int $reqSuccCount): static
+    public function setReqSuccCount(int $reqSuccCount): void
     {
         $this->reqSuccCount = $reqSuccCount;
-
-        return $this;
     }
 
     public function getAdSlot(): ?string
@@ -147,11 +149,9 @@ class AdvertisingSpaceData implements \Stringable
         return $this->adSlot;
     }
 
-    public function setAdSlot(?string $adSlot): self
+    public function setAdSlot(?string $adSlot): void
     {
         $this->adSlot = $adSlot;
-
-        return $this;
     }
 
     public function getSlotId(): ?int
@@ -159,11 +159,9 @@ class AdvertisingSpaceData implements \Stringable
         return $this->slotId;
     }
 
-    public function setSlotId(int $slotId): static
+    public function setSlotId(int $slotId): void
     {
         $this->slotId = $slotId;
-
-        return $this;
     }
 
     public function getAccount(): Account
@@ -171,11 +169,9 @@ class AdvertisingSpaceData implements \Stringable
         return $this->account;
     }
 
-    public function setAccount(Account $account): static
+    public function setAccount(Account $account): void
     {
         $this->account = $account;
-
-        return $this;
     }
 
     public function getDate(): ?\DateTimeInterface
@@ -183,12 +179,11 @@ class AdvertisingSpaceData implements \Stringable
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): static
+    public function setDate(\DateTimeInterface $date): void
     {
         $this->date = $date;
-
-        return $this;
     }
+
     public function __toString(): string
     {
         return (string) $this->id;

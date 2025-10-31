@@ -1,21 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Tourze\PHPUnitSymfonyKernelTest\Attribute\AsRepository;
 use WechatOfficialAccountStatsBundle\Entity\MessageSendWeekData;
 
 /**
- * @method MessageSendWeekData|null find($id, $lockMode = null, $lockVersion = null)
- * @method MessageSendWeekData|null findOneBy(array $criteria, array $orderBy = null)
- * @method MessageSendWeekData[]    findAll()
- * @method MessageSendWeekData[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @extends ServiceEntityRepository<MessageSendWeekData>
  */
+#[AsRepository(entityClass: MessageSendWeekData::class)]
 class MessageSendWeekDataRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, MessageSendWeekData::class);
+    }
+
+    public function save(MessageSendWeekData $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->persist($entity);
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(MessageSendWeekData $entity, bool $flush = true): void
+    {
+        $this->getEntityManager()->remove($entity);
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
     }
 }

@@ -1,27 +1,64 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Tests\Entity;
 
-use DateTimeImmutable;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountStatsBundle\Entity\AdvertisingSpaceData;
 
-class AdvertisingSpaceDataTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(AdvertisingSpaceData::class)]
+final class AdvertisingSpaceDataTest extends AbstractEntityTestCase
 {
+    protected function createEntity(): object
+    {
+        return new AdvertisingSpaceData();
+    }
+
+    /**
+     * @return iterable<string, array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
+    {
+        return [
+            // 只测试可以安全测试的简单属性
+            'slotId' => ['slotId', 123],
+            'adSlot' => ['adSlot', '测试广告位'],
+            'reqSuccCount' => ['reqSuccCount', 1000],
+            'exposureCount' => ['exposureCount', 800],
+            'clickCount' => ['clickCount', 50],
+            'income' => ['income', 12345],
+        ];
+    }
+
     private AdvertisingSpaceData $advertisingSpaceData;
+
     private Account $account;
 
     protected function setUp(): void
     {
+        parent::setUp();
+
         $this->advertisingSpaceData = new AdvertisingSpaceData();
+        /*
+         * 使用具体类 Account 的原因：
+         * 1) AdvertisingSpaceData 实体直接依赖 Account 实体类，而不是接口
+         * 2) 在单元测试中需要模拟 Account 对象的行为进行测试
+         * 3) Account 是 Doctrine 实体类，没有对应的接口抽象
+         * 这种使用方式在测试 Doctrine 实体关联时是合理且必要的
+         */
         $this->account = $this->createMock(Account::class);
     }
 
     /**
      * 测试默认ID值
      */
-    public function testGetId_returnsNullByDefault(): void
+    public function testGetIdReturnsNullByDefault(): void
     {
         $this->assertSame(0, $this->advertisingSpaceData->getId());
     }
@@ -29,131 +66,120 @@ class AdvertisingSpaceDataTest extends TestCase
     /**
      * 测试账户设置和获取
      */
-    public function testSetAndGetAccount_withValidAccount_returnsAccount(): void
+    public function testSetAndGetAccountWithValidAccountReturnsAccount(): void
     {
-        $result = $this->advertisingSpaceData->setAccount($this->account);
+        $this->advertisingSpaceData->setAccount($this->account);
 
-        $this->assertSame($this->advertisingSpaceData, $result);
         $this->assertSame($this->account, $this->advertisingSpaceData->getAccount());
     }
 
     /**
      * 测试日期设置和获取
      */
-    public function testSetAndGetDate_withValidDate_returnsDate(): void
+    public function testSetAndGetDateWithValidDateReturnsDate(): void
     {
-        $date = new DateTimeImmutable('2023-06-15');
-        $result = $this->advertisingSpaceData->setDate($date);
+        $date = new \DateTimeImmutable('2023-06-15');
+        $this->advertisingSpaceData->setDate($date);
 
-        $this->assertSame($this->advertisingSpaceData, $result);
         $this->assertSame($date, $this->advertisingSpaceData->getDate());
     }
 
     /**
      * 测试广告位ID设置和获取
      */
-    public function testSetAndGetSlotId_withValidValue_returnsValue(): void
+    public function testSetAndGetSlotIdWithValidValueReturnsValue(): void
     {
         $slotId = 123;
-        $result = $this->advertisingSpaceData->setSlotId($slotId);
+        $this->advertisingSpaceData->setSlotId($slotId);
 
-        $this->assertSame($this->advertisingSpaceData, $result);
         $this->assertSame($slotId, $this->advertisingSpaceData->getSlotId());
     }
 
     /**
      * 测试广告位名称设置和获取
      */
-    public function testSetAndGetAdSlot_withValidValue_returnsValue(): void
+    public function testSetAndGetAdSlotWithValidValueReturnsValue(): void
     {
         $adSlot = '底部广告位';
-        $result = $this->advertisingSpaceData->setAdSlot($adSlot);
+        $this->advertisingSpaceData->setAdSlot($adSlot);
 
-        $this->assertSame($this->advertisingSpaceData, $result);
         $this->assertSame($adSlot, $this->advertisingSpaceData->getAdSlot());
     }
 
     /**
      * 测试拉取量设置和获取
      */
-    public function testSetAndGetReqSuccCount_withValidValue_returnsValue(): void
+    public function testSetAndGetReqSuccCountWithValidValueReturnsValue(): void
     {
         $reqSuccCount = 1000;
-        $result = $this->advertisingSpaceData->setReqSuccCount($reqSuccCount);
+        $this->advertisingSpaceData->setReqSuccCount($reqSuccCount);
 
-        $this->assertSame($this->advertisingSpaceData, $result);
         $this->assertSame($reqSuccCount, $this->advertisingSpaceData->getReqSuccCount());
     }
 
     /**
      * 测试曝光量设置和获取
      */
-    public function testSetAndGetExposureCount_withValidValue_returnsValue(): void
+    public function testSetAndGetExposureCountWithValidValueReturnsValue(): void
     {
         $exposureCount = 800;
-        $result = $this->advertisingSpaceData->setExposureCount($exposureCount);
+        $this->advertisingSpaceData->setExposureCount($exposureCount);
 
-        $this->assertSame($this->advertisingSpaceData, $result);
         $this->assertSame($exposureCount, $this->advertisingSpaceData->getExposureCount());
     }
 
     /**
      * 测试曝光率设置和获取
      */
-    public function testSetAndGetExposureRate_withValidValue_returnsValue(): void
+    public function testSetAndGetExposureRateWithValidValueReturnsValue(): void
     {
         $exposureRate = '0.8';
-        $result = $this->advertisingSpaceData->setExposureRate($exposureRate);
+        $this->advertisingSpaceData->setExposureRate($exposureRate);
 
-        $this->assertSame($this->advertisingSpaceData, $result);
         $this->assertSame($exposureRate, $this->advertisingSpaceData->getExposureRate());
     }
 
     /**
      * 测试点击量设置和获取
      */
-    public function testSetAndGetClickCount_withValidValue_returnsValue(): void
+    public function testSetAndGetClickCountWithValidValueReturnsValue(): void
     {
         $clickCount = 50;
-        $result = $this->advertisingSpaceData->setClickCount($clickCount);
+        $this->advertisingSpaceData->setClickCount($clickCount);
 
-        $this->assertSame($this->advertisingSpaceData, $result);
         $this->assertSame($clickCount, $this->advertisingSpaceData->getClickCount());
     }
 
     /**
      * 测试点击率设置和获取
      */
-    public function testSetAndGetClickRate_withValidValue_returnsValue(): void
+    public function testSetAndGetClickRateWithValidValueReturnsValue(): void
     {
         $clickRate = '0.0625';
-        $result = $this->advertisingSpaceData->setClickRate($clickRate);
+        $this->advertisingSpaceData->setClickRate($clickRate);
 
-        $this->assertSame($this->advertisingSpaceData, $result);
         $this->assertSame($clickRate, $this->advertisingSpaceData->getClickRate());
     }
 
     /**
      * 测试收入设置和获取
      */
-    public function testSetAndGetIncome_withValidValue_returnsValue(): void
+    public function testSetAndGetIncomeWithValidValueReturnsValue(): void
     {
         $income = 12345;
-        $result = $this->advertisingSpaceData->setIncome($income);
+        $this->advertisingSpaceData->setIncome($income);
 
-        $this->assertSame($this->advertisingSpaceData, $result);
         $this->assertSame($income, $this->advertisingSpaceData->getIncome());
     }
 
     /**
      * 测试ECPM设置和获取
      */
-    public function testSetAndGetEcpm_withValidValue_returnsValue(): void
+    public function testSetAndGetEcpmWithValidValueReturnsValue(): void
     {
         $ecpm = '154.31';
-        $result = $this->advertisingSpaceData->setEcpm($ecpm);
+        $this->advertisingSpaceData->setEcpm($ecpm);
 
-        $this->assertSame($this->advertisingSpaceData, $result);
         $this->assertSame($ecpm, $this->advertisingSpaceData->getEcpm());
     }
 
@@ -177,7 +203,7 @@ class AdvertisingSpaceDataTest extends TestCase
     /**
      * 测试toString方法
      */
-    public function testToString_returnsIdAsString(): void
+    public function testToStringReturnsIdAsString(): void
     {
         $this->assertSame('0', (string) $this->advertisingSpaceData);
     }
@@ -185,9 +211,9 @@ class AdvertisingSpaceDataTest extends TestCase
     /**
      * 测试创建时间设置和获取
      */
-    public function testSetAndGetCreateTime_withValidDateTime_returnsDateTime(): void
+    public function testSetAndGetCreateTimeWithValidDateTimeReturnsDateTime(): void
     {
-        $createTime = new DateTimeImmutable();
+        $createTime = new \DateTimeImmutable();
         $this->advertisingSpaceData->setCreateTime($createTime);
 
         $this->assertSame($createTime, $this->advertisingSpaceData->getCreateTime());
@@ -196,9 +222,9 @@ class AdvertisingSpaceDataTest extends TestCase
     /**
      * 测试更新时间设置和获取
      */
-    public function testSetAndGetUpdateTime_withValidDateTime_returnsDateTime(): void
+    public function testSetAndGetUpdateTimeWithValidDateTimeReturnsDateTime(): void
     {
-        $updateTime = new DateTimeImmutable();
+        $updateTime = new \DateTimeImmutable();
         $this->advertisingSpaceData->setUpdateTime($updateTime);
 
         $this->assertSame($updateTime, $this->advertisingSpaceData->getUpdateTime());

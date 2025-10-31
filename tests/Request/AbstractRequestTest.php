@@ -1,12 +1,26 @@
 <?php
 
-namespace WechatOfficialAccountStatsBundle\Tests\Unit\Request;
+declare(strict_types=1);
 
-use PHPUnit\Framework\TestCase;
+namespace WechatOfficialAccountStatsBundle\Tests\Request;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractIntegrationTestCase;
 use WechatOfficialAccountStatsBundle\Request\AbstractRequest;
 
-class AbstractRequestTest extends TestCase
+/**
+ * @internal
+ */
+#[RunTestsInSeparateProcesses]
+#[CoversClass(AbstractRequest::class)]
+final class AbstractRequestTest extends AbstractIntegrationTestCase
 {
+    protected function onSetUp(): void
+    {
+        // 这个测试类不需要设置任何内容
+    }
+
     public function testAbstractRequestIsAbstract(): void
     {
         $reflection = new \ReflectionClass(AbstractRequest::class);
@@ -16,6 +30,8 @@ class AbstractRequestTest extends TestCase
     public function testAbstractRequestExtendsApiRequest(): void
     {
         $reflection = new \ReflectionClass(AbstractRequest::class);
-        $this->assertSame('HttpClientBundle\Request\ApiRequest', $reflection->getParentClass()->getName());
+        $parentClass = $reflection->getParentClass();
+        $this->assertNotFalse($parentClass);
+        $this->assertSame('HttpClientBundle\Request\ApiRequest', $parentClass->getName());
     }
 }

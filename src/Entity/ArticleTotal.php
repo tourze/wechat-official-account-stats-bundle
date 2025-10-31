@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountStatsBundle\Repository\ArticleTotalRepository;
@@ -14,117 +17,145 @@ use WechatOfficialAccountStatsBundle\Repository\ArticleTotalRepository;
 class ArticleTotal implements \Stringable
 {
     use TimestampableAware;
-            #[ORM\Id]
+
+    #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
-    private ?int $id = 0;
+    private int $id = 0;
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
 
-        #[ORM\ManyToOne]
+    #[ORM\ManyToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Account $account;
 
-        #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
+    #[Assert\NotNull]
     private ?\DateTimeInterface $date = null;
 
-        #[ORM\Column(length: 60, nullable: true, options: ['comment' => '这里的msgid实际上是由msgid和index组成'])]
+    #[ORM\Column(length: 60, nullable: true, options: ['comment' => '这里的msgid实际上是由msgid和index组成'])]
+    #[Assert\Length(max: 60)]
     private ?string $msgId = null;
 
-            #[ORM\Column(length: 60, nullable: true, options: ['comment' => '图文消息的标题'])]
+    #[ORM\Column(length: 60, nullable: true, options: ['comment' => '图文消息的标题'])]
+    #[Assert\Length(max: 60)]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '统计的日期，在getarticletotal接口中，ref_date指的是文章群发出日期， 而stat_date是数据统计日期'])]
+    #[Assert\NotNull]
     private ?\DateTimeInterface $statDate = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '送达人数，一般约等于总粉丝数（需排除黑名单或其他异常情况下无法收到消息的粉丝）'])]
+    #[Assert\PositiveOrZero]
     private ?int $targetUser = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '图文页（点击群发图文卡片进入的页面）的阅读人数'])]
+    #[Assert\PositiveOrZero]
     private ?int $intPageReadUser = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '图文页的阅读次数'])]
+    #[Assert\PositiveOrZero]
     private ?int $intPageReadCount = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '原文页（点击图文页“阅读原文”进入的页面）的阅读人数，无原文页时此处数据为0'])]
+    #[Assert\PositiveOrZero]
     private ?int $oriPageReadUser = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '原文页的阅读次数'])]
+    #[Assert\PositiveOrZero]
     private ?int $oriPageReadCount = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '分享的人数'])]
+    #[Assert\PositiveOrZero]
     private ?int $shareUser = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '分享的次数'])]
+    #[Assert\PositiveOrZero]
     private ?int $shareCount = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '收藏的人数'])]
+    #[Assert\PositiveOrZero]
     private ?int $addToFavUser = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '收藏的次数'])]
+    #[Assert\PositiveOrZero]
     private ?int $addToFavCount = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '从会话中读取的用户数量'])]
+    #[Assert\PositiveOrZero]
     private ?int $intPageFromSessionReadUser = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '从会话中读取的总数'])]
+    #[Assert\PositiveOrZero]
     private ?int $intPageFromSessionReadCount = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '从历史消息中读取的用户数量'])]
+    #[Assert\PositiveOrZero]
     private ?int $intPageFromHistMsgReadUser = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '历史消息中读取的总数'])]
+    #[Assert\PositiveOrZero]
     private ?int $intPageFromHistMsgReadCount = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '从动态中读取的用户数量'])]
+    #[Assert\PositiveOrZero]
     private ?int $intPageFromFeedReadUser = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '从动态中读取的总数'])]
+    #[Assert\PositiveOrZero]
     private ?int $intPageFromFeedReadCount = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '从好友中读取的用户数量'])]
+    #[Assert\PositiveOrZero]
     private ?int $intPageFromFriendsReadUser = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '从好友中读取的总数'])]
+    #[Assert\PositiveOrZero]
     private ?int $intPageFromFriendsReadCount = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '从其他来源读取的用户数量'])]
+    #[Assert\PositiveOrZero]
     private ?int $intPageFromOtherReadUser = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '从其他来源读取的总数'])]
+    #[Assert\PositiveOrZero]
     private ?int $intPageFromOtherReadCount = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '从会话中分享的用户数量'])]
+    #[Assert\PositiveOrZero]
     private ?int $feedShareFromSessionUser = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '从会话中分享的总数'])]
+    #[Assert\PositiveOrZero]
     private ?int $feedShareFromSessionCnt = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '从动态中分享的用户数量'])]
+    #[Assert\PositiveOrZero]
     private ?int $feedShareFromFeedUser = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '从动态中分享的总数'])]
+    #[Assert\PositiveOrZero]
     private ?int $feedShareFromFeedCnt = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '从其他来源分享的用户数量'])]
+    #[Assert\PositiveOrZero]
     private ?int $feedShareFromOtherUser = null;
 
     #[ORM\Column(nullable: true, options: ['comment' => '从其他来源分享的总数'])]
+    #[Assert\PositiveOrZero]
     private ?int $feedShareFromOtherCnt = null;
 
-        public function getFeedShareFromOtherCnt(): ?int
+    public function getFeedShareFromOtherCnt(): ?int
     {
         return $this->feedShareFromOtherCnt;
     }
 
-    public function setFeedShareFromOtherCnt(int $feedShareFromOtherCnt): static
+    public function setFeedShareFromOtherCnt(int $feedShareFromOtherCnt): void
     {
         $this->feedShareFromOtherCnt = $feedShareFromOtherCnt;
-
-        return $this;
     }
 
     public function getFeedShareFromOtherUser(): ?int
@@ -132,11 +163,9 @@ class ArticleTotal implements \Stringable
         return $this->feedShareFromOtherUser;
     }
 
-    public function setFeedShareFromOtherUser(int $feedShareFromOtherUser): static
+    public function setFeedShareFromOtherUser(int $feedShareFromOtherUser): void
     {
         $this->feedShareFromOtherUser = $feedShareFromOtherUser;
-
-        return $this;
     }
 
     public function getFeedShareFromFeedCnt(): ?int
@@ -144,11 +173,9 @@ class ArticleTotal implements \Stringable
         return $this->feedShareFromFeedCnt;
     }
 
-    public function setFeedShareFromFeedCnt(int $feedShareFromFeedCnt): static
+    public function setFeedShareFromFeedCnt(int $feedShareFromFeedCnt): void
     {
         $this->feedShareFromFeedCnt = $feedShareFromFeedCnt;
-
-        return $this;
     }
 
     public function getFeedShareFromFeedUser(): ?int
@@ -156,11 +183,9 @@ class ArticleTotal implements \Stringable
         return $this->feedShareFromFeedUser;
     }
 
-    public function setFeedShareFromFeedUser(int $feedShareFromFeedUser): static
+    public function setFeedShareFromFeedUser(int $feedShareFromFeedUser): void
     {
         $this->feedShareFromFeedUser = $feedShareFromFeedUser;
-
-        return $this;
     }
 
     public function getFeedShareFromSessionCnt(): ?int
@@ -168,11 +193,9 @@ class ArticleTotal implements \Stringable
         return $this->feedShareFromSessionCnt;
     }
 
-    public function setFeedShareFromSessionCnt(int $feedShareFromSessionCnt): static
+    public function setFeedShareFromSessionCnt(int $feedShareFromSessionCnt): void
     {
         $this->feedShareFromSessionCnt = $feedShareFromSessionCnt;
-
-        return $this;
     }
 
     public function getFeedShareFromSessionUser(): ?int
@@ -180,11 +203,9 @@ class ArticleTotal implements \Stringable
         return $this->feedShareFromSessionUser;
     }
 
-    public function setFeedShareFromSessionUser(int $feedShareFromSessionUser): static
+    public function setFeedShareFromSessionUser(int $feedShareFromSessionUser): void
     {
         $this->feedShareFromSessionUser = $feedShareFromSessionUser;
-
-        return $this;
     }
 
     public function getIntPageFromOtherReadCount(): ?int
@@ -192,11 +213,9 @@ class ArticleTotal implements \Stringable
         return $this->intPageFromOtherReadCount;
     }
 
-    public function setIntPageFromOtherReadCount(int $intPageFromOtherReadCount): static
+    public function setIntPageFromOtherReadCount(int $intPageFromOtherReadCount): void
     {
         $this->intPageFromOtherReadCount = $intPageFromOtherReadCount;
-
-        return $this;
     }
 
     public function getIntPageFromOtherReadUser(): ?int
@@ -204,11 +223,9 @@ class ArticleTotal implements \Stringable
         return $this->intPageFromOtherReadUser;
     }
 
-    public function setIntPageFromOtherReadUser(int $intPageFromOtherReadUser): static
+    public function setIntPageFromOtherReadUser(int $intPageFromOtherReadUser): void
     {
         $this->intPageFromOtherReadUser = $intPageFromOtherReadUser;
-
-        return $this;
     }
 
     public function getIntPageFromFriendsReadCount(): ?int
@@ -216,11 +233,9 @@ class ArticleTotal implements \Stringable
         return $this->intPageFromFriendsReadCount;
     }
 
-    public function setIntPageFromFriendsReadCount(int $intPageFromFriendsReadCount): static
+    public function setIntPageFromFriendsReadCount(int $intPageFromFriendsReadCount): void
     {
         $this->intPageFromFriendsReadCount = $intPageFromFriendsReadCount;
-
-        return $this;
     }
 
     public function getIntPageFromFriendsReadUser(): ?int
@@ -228,11 +243,9 @@ class ArticleTotal implements \Stringable
         return $this->intPageFromFriendsReadUser;
     }
 
-    public function setIntPageFromFriendsReadUser(int $intPageFromFriendsReadUser): static
+    public function setIntPageFromFriendsReadUser(int $intPageFromFriendsReadUser): void
     {
         $this->intPageFromFriendsReadUser = $intPageFromFriendsReadUser;
-
-        return $this;
     }
 
     public function getIntPageFromFeedReadCount(): ?int
@@ -240,11 +253,9 @@ class ArticleTotal implements \Stringable
         return $this->intPageFromFeedReadCount;
     }
 
-    public function setIntPageFromFeedReadCount(int $intPageFromFeedReadCount): static
+    public function setIntPageFromFeedReadCount(int $intPageFromFeedReadCount): void
     {
         $this->intPageFromFeedReadCount = $intPageFromFeedReadCount;
-
-        return $this;
     }
 
     public function getIntPageFromFeedReadUser(): ?int
@@ -252,11 +263,9 @@ class ArticleTotal implements \Stringable
         return $this->intPageFromFeedReadUser;
     }
 
-    public function setIntPageFromFeedReadUser(int $intPageFromFeedReadUser): static
+    public function setIntPageFromFeedReadUser(int $intPageFromFeedReadUser): void
     {
         $this->intPageFromFeedReadUser = $intPageFromFeedReadUser;
-
-        return $this;
     }
 
     public function getIntPageFromHistMsgReadCount(): ?int
@@ -264,11 +273,9 @@ class ArticleTotal implements \Stringable
         return $this->intPageFromHistMsgReadCount;
     }
 
-    public function setIntPageFromHistMsgReadCount(int $intPageFromHistMsgReadCount): static
+    public function setIntPageFromHistMsgReadCount(int $intPageFromHistMsgReadCount): void
     {
         $this->intPageFromHistMsgReadCount = $intPageFromHistMsgReadCount;
-
-        return $this;
     }
 
     public function getIntPageFromHistMsgReadUser(): ?int
@@ -276,11 +283,9 @@ class ArticleTotal implements \Stringable
         return $this->intPageFromHistMsgReadUser;
     }
 
-    public function setIntPageFromHistMsgReadUser(int $intPageFromHistMsgReadUser): static
+    public function setIntPageFromHistMsgReadUser(int $intPageFromHistMsgReadUser): void
     {
         $this->intPageFromHistMsgReadUser = $intPageFromHistMsgReadUser;
-
-        return $this;
     }
 
     public function getIntPageFromSessionReadCount(): ?int
@@ -288,11 +293,9 @@ class ArticleTotal implements \Stringable
         return $this->intPageFromSessionReadCount;
     }
 
-    public function setIntPageFromSessionReadCount(int $intPageFromSessionReadCount): static
+    public function setIntPageFromSessionReadCount(int $intPageFromSessionReadCount): void
     {
         $this->intPageFromSessionReadCount = $intPageFromSessionReadCount;
-
-        return $this;
     }
 
     public function getIntPageFromSessionReadUser(): ?int
@@ -300,11 +303,9 @@ class ArticleTotal implements \Stringable
         return $this->intPageFromSessionReadUser;
     }
 
-    public function setIntPageFromSessionReadUser(int $intPageFromSessionReadUser): static
+    public function setIntPageFromSessionReadUser(int $intPageFromSessionReadUser): void
     {
         $this->intPageFromSessionReadUser = $intPageFromSessionReadUser;
-
-        return $this;
     }
 
     public function getAddToFavCount(): ?int
@@ -312,11 +313,9 @@ class ArticleTotal implements \Stringable
         return $this->addToFavCount;
     }
 
-    public function setAddToFavCount(int $addToFavCount): static
+    public function setAddToFavCount(int $addToFavCount): void
     {
         $this->addToFavCount = $addToFavCount;
-
-        return $this;
     }
 
     public function getAddToFavUser(): ?int
@@ -324,11 +323,9 @@ class ArticleTotal implements \Stringable
         return $this->addToFavUser;
     }
 
-    public function setAddToFavUser(int $addToFavUser): static
+    public function setAddToFavUser(int $addToFavUser): void
     {
         $this->addToFavUser = $addToFavUser;
-
-        return $this;
     }
 
     public function getShareCount(): ?int
@@ -336,11 +333,9 @@ class ArticleTotal implements \Stringable
         return $this->shareCount;
     }
 
-    public function setShareCount(int $shareCount): static
+    public function setShareCount(int $shareCount): void
     {
         $this->shareCount = $shareCount;
-
-        return $this;
     }
 
     public function getShareUser(): ?int
@@ -348,11 +343,9 @@ class ArticleTotal implements \Stringable
         return $this->shareUser;
     }
 
-    public function setShareUser(int $shareUser): static
+    public function setShareUser(int $shareUser): void
     {
         $this->shareUser = $shareUser;
-
-        return $this;
     }
 
     public function getOriPageReadCount(): ?int
@@ -360,11 +353,9 @@ class ArticleTotal implements \Stringable
         return $this->oriPageReadCount;
     }
 
-    public function setOriPageReadCount(int $oriPageReadCount): static
+    public function setOriPageReadCount(int $oriPageReadCount): void
     {
         $this->oriPageReadCount = $oriPageReadCount;
-
-        return $this;
     }
 
     public function getOriPageReadUser(): ?int
@@ -372,11 +363,9 @@ class ArticleTotal implements \Stringable
         return $this->oriPageReadUser;
     }
 
-    public function setOriPageReadUser(int $oriPageReadUser): static
+    public function setOriPageReadUser(int $oriPageReadUser): void
     {
         $this->oriPageReadUser = $oriPageReadUser;
-
-        return $this;
     }
 
     public function getIntPageReadCount(): ?int
@@ -384,11 +373,9 @@ class ArticleTotal implements \Stringable
         return $this->intPageReadCount;
     }
 
-    public function setIntPageReadCount(int $intPageReadCount): static
+    public function setIntPageReadCount(int $intPageReadCount): void
     {
         $this->intPageReadCount = $intPageReadCount;
-
-        return $this;
     }
 
     public function getIntPageReadUser(): ?int
@@ -396,11 +383,9 @@ class ArticleTotal implements \Stringable
         return $this->intPageReadUser;
     }
 
-    public function setIntPageReadUser(int $intPageReadUser): static
+    public function setIntPageReadUser(int $intPageReadUser): void
     {
         $this->intPageReadUser = $intPageReadUser;
-
-        return $this;
     }
 
     public function getTargetUser(): ?int
@@ -408,11 +393,9 @@ class ArticleTotal implements \Stringable
         return $this->targetUser;
     }
 
-    public function setTargetUser(int $targetUser): static
+    public function setTargetUser(int $targetUser): void
     {
         $this->targetUser = $targetUser;
-
-        return $this;
     }
 
     public function getTitle(): ?string
@@ -420,11 +403,9 @@ class ArticleTotal implements \Stringable
         return $this->title;
     }
 
-    public function setTitle(string $title): self
+    public function setTitle(string $title): void
     {
         $this->title = $title;
-
-        return $this;
     }
 
     public function getStatDate(): ?\DateTimeInterface
@@ -432,11 +413,9 @@ class ArticleTotal implements \Stringable
         return $this->statDate;
     }
 
-    public function setStatDate(\DateTimeInterface $statDate): static
+    public function setStatDate(\DateTimeInterface $statDate): void
     {
         $this->statDate = $statDate;
-
-        return $this;
     }
 
     public function getMsgId(): ?string
@@ -444,11 +423,9 @@ class ArticleTotal implements \Stringable
         return $this->msgId;
     }
 
-    public function setMsgId(string $msgId): self
+    public function setMsgId(string $msgId): void
     {
         $this->msgId = $msgId;
-
-        return $this;
     }
 
     public function getAccount(): Account
@@ -456,11 +433,9 @@ class ArticleTotal implements \Stringable
         return $this->account;
     }
 
-    public function setAccount(Account $account): static
+    public function setAccount(Account $account): void
     {
         $this->account = $account;
-
-        return $this;
     }
 
     public function getDate(): ?\DateTimeInterface
@@ -468,12 +443,11 @@ class ArticleTotal implements \Stringable
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): static
+    public function setDate(\DateTimeInterface $date): void
     {
         $this->date = $date;
-
-        return $this;
     }
+
     public function __toString(): string
     {
         return (string) $this->id;

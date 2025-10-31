@@ -6,5 +6,37 @@ services:
 
   WechatOfficialAccountStatsBundle\Command\:
     resource: '../../Command/'
+
   WechatOfficialAccountStatsBundle\Repository\:
     resource: '../../Repository/'
+
+  # Service classes
+  WechatOfficialAccountStatsBundle\Service\ArticleTotalDataExtractor: ~
+  WechatOfficialAccountStatsBundle\Service\SettlementIncomeDataExtractor: ~
+  WechatOfficialAccountStatsBundle\Service\UserCumulateDataProcessor: ~
+  WechatOfficialAccountStatsBundle\Service\MessageSendDistDataProcessor: ~
+  WechatOfficialAccountStatsBundle\Service\MessageSendDataProcessor: ~
+  WechatOfficialAccountStatsBundle\Service\UserSummaryDataProcessor: ~
+  WechatOfficialAccountStatsBundle\Service\MessageSendMonthDataProcessor: ~
+  WechatOfficialAccountStatsBundle\Service\AdvertisingSpaceDataProcessor: ~
+  WechatOfficialAccountStatsBundle\Service\ImageTextStatisticsHourProcessor: ~
+  WechatOfficialAccountStatsBundle\Service\ImageTextStatisticsProcessor: ~
+  WechatOfficialAccountStatsBundle\Service\InterfaceSummaryHourProcessor: ~
+  WechatOfficialAccountStatsBundle\Service\ArticleSummaryProcessor: ~
+
+  # Previously missing services
+  WechatOfficialAccountStatsBundle\Service\ImageTextShareDataProcessor: ~
+  WechatOfficialAccountStatsBundle\Service\ImageTextShareHourDataProcessor: ~
+  WechatOfficialAccountStatsBundle\Service\InterfaceSummaryProcessor: ~
+  WechatOfficialAccountStatsBundle\Service\MessageSendHourDataProcessor: ~
+  WechatOfficialAccountStatsBundle\Service\MessageSendWeekDataProcessor: ~
+  WechatOfficialAccountStatsBundle\Service\RebateGoodsDataProcessor: ~
+
+  # EasyAdmin Controllers
+  WechatOfficialAccountStatsBundle\Controller\Admin\:
+    resource: '../../Controller/Admin/'
+    tags: ['controller.service_arguments']
+
+  # Admin Menu
+  WechatOfficialAccountStatsBundle\Service\AdminMenu:
+    tags: ['easy-admin-menu.provider']

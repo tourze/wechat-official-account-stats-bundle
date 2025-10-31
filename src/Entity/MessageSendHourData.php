@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use WechatOfficialAccountBundle\Entity\Account;
 use WechatOfficialAccountStatsBundle\Enum\MessageSendDataTypeEnum;
@@ -15,36 +18,42 @@ use WechatOfficialAccountStatsBundle\Repository\MessageSendHourDataRepository;
 class MessageSendHourData implements \Stringable
 {
     use TimestampableAware;
-            #[ORM\Id]
+
+    #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
-    private ?int $id = 0;
+    private int $id = 0;
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
 
-        #[ORM\ManyToOne]
+    #[ORM\ManyToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Account $account;
 
-        #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, options: ['comment' => '日期'])]
+    #[Assert\NotNull]
     private ?\DateTimeInterface $date = null;
 
-        #[ORM\Column(options: ['comment' => '小时'])]
+    #[ORM\Column(options: ['comment' => '小时'])]
+    #[Assert\Range(min: 0, max: 23)]
     private ?int $refHour = null;
 
-            #[ORM\Column(type: Types::INTEGER, enumType: MessageSendDataTypeEnum::class, options: ['comment' => '消息类型'])]
+    #[ORM\Column(type: Types::INTEGER, enumType: MessageSendDataTypeEnum::class, options: ['comment' => '消息类型'])]
+    #[Assert\Choice(callback: [MessageSendDataTypeEnum::class, 'cases'])]
     private ?MessageSendDataTypeEnum $msgType = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '上行发送了（向公众号发送了）消息的用户数'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '上行发送了（向公众号发送了）消息的用户数'])]
+    #[Assert\PositiveOrZero]
     private ?int $msgUser = null;
 
-        #[ORM\Column(nullable: true, options: ['comment' => '上行发送了消息的消息总数'])]
+    #[ORM\Column(nullable: true, options: ['comment' => '上行发送了消息的消息总数'])]
+    #[Assert\PositiveOrZero]
     private ?int $msgCount = null;
 
-        public function getMsgType(): ?MessageSendDataTypeEnum
+    public function getMsgType(): ?MessageSendDataTypeEnum
     {
         return $this->msgType;
     }
@@ -59,11 +68,9 @@ class MessageSendHourData implements \Stringable
         return $this->refHour;
     }
 
-    public function setRefHour(int $refHour): static
+    public function setRefHour(int $refHour): void
     {
         $this->refHour = $refHour;
-
-        return $this;
     }
 
     public function getMsgCount(): ?int
@@ -71,11 +78,9 @@ class MessageSendHourData implements \Stringable
         return $this->msgCount;
     }
 
-    public function setMsgCount(int $msgCount): static
+    public function setMsgCount(int $msgCount): void
     {
         $this->msgCount = $msgCount;
-
-        return $this;
     }
 
     public function getMsgUser(): ?int
@@ -83,11 +88,9 @@ class MessageSendHourData implements \Stringable
         return $this->msgUser;
     }
 
-    public function setMsgUser(int $msgUser): static
+    public function setMsgUser(int $msgUser): void
     {
         $this->msgUser = $msgUser;
-
-        return $this;
     }
 
     public function getAccount(): Account
@@ -95,11 +98,9 @@ class MessageSendHourData implements \Stringable
         return $this->account;
     }
 
-    public function setAccount(Account $account): static
+    public function setAccount(Account $account): void
     {
         $this->account = $account;
-
-        return $this;
     }
 
     public function getDate(): ?\DateTimeInterface
@@ -107,12 +108,11 @@ class MessageSendHourData implements \Stringable
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): static
+    public function setDate(\DateTimeInterface $date): void
     {
         $this->date = $date;
-
-        return $this;
     }
+
     public function __toString(): string
     {
         return (string) $this->id;

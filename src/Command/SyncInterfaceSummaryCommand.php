@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Command;
 
 use Carbon\CarbonImmutable;
@@ -11,9 +13,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use WechatOfficialAccountBundle\Repository\AccountRepository;
 use WechatOfficialAccountBundle\Service\OfficialAccountClient;
-use WechatOfficialAccountStatsBundle\Entity\InterfaceSummary;
-use WechatOfficialAccountStatsBundle\Repository\InterfaceSummaryRepository;
 use WechatOfficialAccountStatsBundle\Request\InterfaceSummaryDataRequest;
+use WechatOfficialAccountStatsBundle\Service\InterfaceSummaryProcessor;
 
 /**
  * 获取接口分析数据
@@ -29,7 +30,7 @@ class SyncInterfaceSummaryCommand extends Command
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly OfficialAccountClient $client,
-        private readonly InterfaceSummaryRepository $interfaceSummaryRepository,
+        private readonly InterfaceSummaryProcessor $dataProcessor,
         private readonly EntityManagerInterface $entityManager,
         ?string $name = null,
     ) {
@@ -40,13 +41,17 @@ class SyncInterfaceSummaryCommand extends Command
     {
         $this->setDescription('获取接口分析数据')
             ->addArgument('startTime', InputArgument::OPTIONAL, 'order start time', CarbonImmutable::now()->subDay()->startOfDay()->format('Y-m-d'))
-            ->addArgument('endTime', InputArgument::OPTIONAL, 'order end time', CarbonImmutable::now()->subDay()->endOfDay()->format('Y-m-d'));
+            ->addArgument('endTime', InputArgument::OPTIONAL, 'order end time', CarbonImmutable::now()->subDay()->endOfDay()->format('Y-m-d'))
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $startTimeString = $input->getArgument('startTime');
         $endTimeString = $input->getArgument('endTime');
+
+        assert(is_string($startTimeString));
+        assert(is_string($endTimeString));
 
         $startTime = CarbonImmutable::parse($startTimeString);
         $endTime = CarbonImmutable::parse($endTimeString);
@@ -63,24 +68,13 @@ class SyncInterfaceSummaryCommand extends Command
             $request->setBeginDate($startTime);
             $request->setEndDate($endTime);
             $response = $this->client->request($request);
-            foreach ($response['list'] as $item) {
-                $date = CarbonImmutable::parse($item['ref_date']);
-                $interfaceSummaryData = $this->interfaceSummaryRepository->findOneBy([
-                    'account' => $account,
-                    'date' => $date,
-                ]);
-                if ($interfaceSummaryData === null) {
-                    $interfaceSummaryData = new InterfaceSummary();
-                    $interfaceSummaryData->setAccount($account);
-                    $interfaceSummaryData->setDate($date);
-                }
-                $interfaceSummaryData->setCallbackCount($item['callback_count']);
-                $interfaceSummaryData->setFailCount($item['fail_count']);
-                $interfaceSummaryData->setMaxTimeCost($item['max_time_cost']);
-                $interfaceSummaryData->setTotalTimeCost($item['total_time_cost']);
-                $this->entityManager->persist($interfaceSummaryData);
-                $this->entityManager->flush();
+
+            if (!is_array($response)) {
+                continue;
             }
+
+            $this->dataProcessor->processResponse($account, $response);
+            $this->entityManager->flush();
         }
 
         return Command::SUCCESS;

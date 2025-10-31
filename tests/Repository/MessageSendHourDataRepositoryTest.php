@@ -1,52 +1,104 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WechatOfficialAccountStatsBundle\Tests\Repository;
 
-use Doctrine\Persistence\ManagerRegistry;
-use PHPUnit\Framework\TestCase;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractRepositoryTestCase;
+use WechatOfficialAccountBundle\Entity\Account;
+use WechatOfficialAccountStatsBundle\Entity\MessageSendHourData;
+use WechatOfficialAccountStatsBundle\Enum\MessageSendDataTypeEnum;
 use WechatOfficialAccountStatsBundle\Repository\MessageSendHourDataRepository;
 
-class MessageSendHourDataRepositoryTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(MessageSendHourDataRepository::class)]
+#[RunTestsInSeparateProcesses]
+final class MessageSendHourDataRepositoryTest extends AbstractRepositoryTestCase
 {
-    /**
-     * 测试仓库构造函数是否接受正确的实体类类名
-     */
-    public function testRepositoryConstruction(): void
+    private MessageSendHourDataRepository $repository;
+
+    protected function onSetUp(): void
     {
-        $registry = $this->createMock(ManagerRegistry::class);
+        $this->repository = self::getService(MessageSendHourDataRepository::class);
+    }
 
-        // 测试能否正确实例化仓库
-        $repository = new MessageSendHourDataRepository($registry);
+    public function testConstruct(): void
+    {
+        $this->assertNotNull($this->repository);
+    }
 
-        $this->assertInstanceOf(MessageSendHourDataRepository::class, $repository);
+    public function testSaveMethodShouldPersistEntity(): void
+    {
+        $account = $this->createTestAccount();
+        $entity = $this->createMessageSendHourData($account);
+
+        $this->repository->save($entity, true);
+
+        $found = $this->repository->find($entity->getId());
+        $this->assertInstanceOf(MessageSendHourData::class, $found);
+        $this->assertEquals($entity->getDate(), $found->getDate());
+    }
+
+    public function testRemoveMethodShouldDeleteEntity(): void
+    {
+        $account = $this->createTestAccount();
+        $entity = $this->createMessageSendHourData($account);
+
+        $this->persistEntities([$account, $entity]);
+
+        $id = $entity->getId();
+
+        $this->repository->remove($entity, true);
+
+        $found = $this->repository->find($id);
+        $this->assertNull($found);
+    }
+
+    private function createTestAccount(): Account
+    {
+        $account = new Account();
+        $account->setAppId('test-app-id-' . uniqid());
+        $account->setAppSecret('test-app-secret');
+        $account->setName('Test Account');
+
+        return $account;
+    }
+
+    private function createMessageSendHourData(Account $account, ?\DateTimeImmutable $date = null): MessageSendHourData
+    {
+        $entity = new MessageSendHourData();
+        $entity->setAccount($account);
+        $entity->setDate($date ?? new \DateTimeImmutable());
+        $entity->setRefHour(10);
+        $entity->setMsgType(MessageSendDataTypeEnum::TEXT);
+        $entity->setMsgUser(100);
+        $entity->setMsgCount(50);
+
+        return $entity;
+    }
+
+    protected function createNewEntity(): object
+    {
+        $account = $this->createTestAccount();
+        $entity = new MessageSendHourData();
+        $entity->setAccount($account);
+        $entity->setDate(new \DateTimeImmutable());
+        $entity->setRefHour(10);
+        $entity->setMsgType(MessageSendDataTypeEnum::TEXT);
+
+        return $entity;
     }
 
     /**
-     * 测试仓库类是否与正确的实体类关联
+     * @return ServiceEntityRepository<MessageSendHourData>
      */
-    public function testRepositoryEntityClassAssociation(): void
+    protected function getRepository(): ServiceEntityRepository
     {
-        // 验证实体类名被正确传递给父类构造函数
-        $constructorBody = $this->getConstructorBody(MessageSendHourDataRepository::class);
-        $this->assertStringContainsString('MessageSendHourData::class', $constructorBody, '构造函数应传递 MessageSendHourData::class 给父类');
-    }
-
-    /**
-     * 获取类构造函数的代码内容
-     */
-    private function getConstructorBody(string $className): string
-    {
-        $reflection = new \ReflectionClass($className);
-        if (!$reflection->hasMethod('__construct')) {
-            return '';
-        }
-
-        $constructor = $reflection->getMethod('__construct');
-        $filename = $constructor->getFileName();
-        $startLine = $constructor->getStartLine();
-        $endLine = $constructor->getEndLine();
-
-        $fileContent = file($filename);
-        return implode('', array_slice($fileContent, $startLine - 1, $endLine - $startLine + 1));
+        return $this->repository;
     }
 }
