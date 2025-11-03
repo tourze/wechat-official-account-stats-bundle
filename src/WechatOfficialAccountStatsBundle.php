@@ -9,6 +9,7 @@ use HttpClientBundle\HttpClientBundle;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Tourze\BundleDependency\BundleDependencyInterface;
 use WechatOfficialAccountBundle\WechatOfficialAccountBundle;
+use Tourze\EasyAdminMenuBundle\EasyAdminMenuBundle;
 
 class WechatOfficialAccountStatsBundle extends Bundle implements BundleDependencyInterface
 {
@@ -18,6 +19,7 @@ class WechatOfficialAccountStatsBundle extends Bundle implements BundleDependenc
             DoctrineBundle::class => ['all' => true],
             HttpClientBundle::class => ['all' => true],
             WechatOfficialAccountBundle::class => ['all' => true],
+            EasyAdminMenuBundle::class => ['all' => true],
         ];
     }
 }
