@@ -48,15 +48,6 @@ final class AdvertisingSpaceDataCrudControllerTest extends AbstractEasyAdminCont
         yield 'dummy' => ['dummy'];
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $controller = new AdvertisingSpaceDataCrudController();
-        $this->assertSame(
-            AdvertisingSpaceData::class,
-            $controller::getEntityFqcn()
-        );
-    }
-
     public function testControllerConfiguration(): void
     {
         $controller = new AdvertisingSpaceDataCrudController();

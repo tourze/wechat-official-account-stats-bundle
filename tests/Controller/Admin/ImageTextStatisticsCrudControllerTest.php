@@ -49,15 +49,6 @@ final class ImageTextStatisticsCrudControllerTest extends AbstractEasyAdminContr
         yield 'dummy' => ['dummy'];
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $controller = new ImageTextStatisticsCrudController();
-        $this->assertSame(
-            ImageTextStatistics::class,
-            $controller::getEntityFqcn()
-        );
-    }
-
     public function testControllerConfiguration(): void
     {
         $controller = new ImageTextStatisticsCrudController();

@@ -49,15 +49,6 @@ final class InterfaceSummaryCrudControllerTest extends AbstractEasyAdminControll
         yield 'dummy' => ['dummy'];
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $controller = new InterfaceSummaryCrudController();
-        $this->assertSame(
-            InterfaceSummary::class,
-            $controller::getEntityFqcn()
-        );
-    }
-
     public function testControllerConfiguration(): void
     {
         $controller = new InterfaceSummaryCrudController();

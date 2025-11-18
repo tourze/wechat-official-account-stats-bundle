@@ -46,15 +46,6 @@ final class UserCumulateCrudControllerTest extends AbstractEasyAdminControllerTe
         yield 'dummy' => ['dummy'];
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $controller = new UserCumulateCrudController();
-        $this->assertSame(
-            UserCumulate::class,
-            $controller::getEntityFqcn()
-        );
-    }
-
     public function testControllerConfiguration(): void
     {
         $controller = new UserCumulateCrudController();

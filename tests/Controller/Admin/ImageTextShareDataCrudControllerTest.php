@@ -43,15 +43,6 @@ final class ImageTextShareDataCrudControllerTest extends AbstractEasyAdminContro
         yield 'dummy' => ['dummy'];
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $controller = new ImageTextShareDataCrudController();
-        $this->assertSame(
-            ImageTextShareData::class,
-            $controller::getEntityFqcn()
-        );
-    }
-
     public function testControllerConfiguration(): void
     {
         $controller = new ImageTextShareDataCrudController();

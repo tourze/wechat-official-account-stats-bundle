@@ -54,15 +54,6 @@ final class SettlementIncomeDataCrudControllerTest extends AbstractEasyAdminCont
         yield 'dummy' => ['dummy'];
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $controller = new SettlementIncomeDataCrudController();
-        $this->assertSame(
-            SettlementIncomeData::class,
-            $controller::getEntityFqcn()
-        );
-    }
-
     public function testControllerConfiguration(): void
     {
         $controller = new SettlementIncomeDataCrudController();

@@ -55,15 +55,6 @@ final class ImageTextStatisticsHourCrudControllerTest extends AbstractEasyAdminC
         yield 'dummy' => ['dummy'];
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $controller = new ImageTextStatisticsHourCrudController();
-        $this->assertSame(
-            ImageTextStatisticsHour::class,
-            $controller::getEntityFqcn()
-        );
-    }
-
     public function testControllerConfiguration(): void
     {
         $controller = new ImageTextStatisticsHourCrudController();

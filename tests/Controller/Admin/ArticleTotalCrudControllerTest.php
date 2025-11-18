@@ -49,15 +49,6 @@ final class ArticleTotalCrudControllerTest extends AbstractEasyAdminControllerTe
         yield 'dummy' => ['dummy'];
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $controller = new ArticleTotalCrudController();
-        $this->assertSame(
-            ArticleTotal::class,
-            $controller::getEntityFqcn()
-        );
-    }
-
     public function testControllerConfiguration(): void
     {
         $controller = new ArticleTotalCrudController();

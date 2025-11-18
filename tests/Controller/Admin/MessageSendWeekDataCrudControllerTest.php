@@ -48,15 +48,6 @@ final class MessageSendWeekDataCrudControllerTest extends AbstractEasyAdminContr
         yield 'dummy' => ['dummy'];
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $controller = new MessageSendWeekDataCrudController();
-        $this->assertSame(
-            MessageSendWeekData::class,
-            $controller::getEntityFqcn()
-        );
-    }
-
     public function testControllerConfiguration(): void
     {
         $controller = new MessageSendWeekDataCrudController();

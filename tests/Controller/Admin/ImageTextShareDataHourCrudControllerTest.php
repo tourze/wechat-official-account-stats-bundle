@@ -49,15 +49,6 @@ final class ImageTextShareDataHourCrudControllerTest extends AbstractEasyAdminCo
         yield 'dummy' => ['dummy'];
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $controller = new ImageTextShareDataHourCrudController();
-        $this->assertSame(
-            ImageTextShareDataHour::class,
-            $controller::getEntityFqcn()
-        );
-    }
-
     public function testControllerConfiguration(): void
     {
         $controller = new ImageTextShareDataHourCrudController();

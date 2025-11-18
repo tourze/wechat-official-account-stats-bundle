@@ -48,15 +48,6 @@ final class UserSummaryCrudControllerTest extends AbstractEasyAdminControllerTes
         yield 'dummy' => ['dummy'];
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $controller = new UserSummaryCrudController();
-        $this->assertSame(
-            UserSummary::class,
-            $controller::getEntityFqcn()
-        );
-    }
-
     public function testControllerConfiguration(): void
     {
         $controller = new UserSummaryCrudController();

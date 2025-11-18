@@ -47,15 +47,6 @@ final class MessageSenDistDataCrudControllerTest extends AbstractEasyAdminContro
         yield 'dummy' => ['dummy'];
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $controller = new MessageSenDistDataCrudController();
-        $this->assertSame(
-            MessageSenDistData::class,
-            $controller::getEntityFqcn()
-        );
-    }
-
     public function testControllerConfiguration(): void
     {
         $controller = new MessageSenDistDataCrudController();

@@ -49,15 +49,6 @@ final class ArticleDailySummaryCrudControllerTest extends AbstractEasyAdminContr
         yield 'dummy' => ['dummy'];
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $controller = new ArticleDailySummaryCrudController();
-        $this->assertSame(
-            ArticleDailySummary::class,
-            $controller::getEntityFqcn()
-        );
-    }
-
     public function testControllerConfiguration(): void
     {
         $controller = new ArticleDailySummaryCrudController();

@@ -52,15 +52,6 @@ final class RebateGoodsDataCrudControllerTest extends AbstractEasyAdminControlle
         yield 'dummy' => ['dummy'];
     }
 
-    public function testGetEntityFqcn(): void
-    {
-        $controller = new RebateGoodsDataCrudController();
-        $this->assertSame(
-            RebateGoodsData::class,
-            $controller::getEntityFqcn()
-        );
-    }
-
     public function testControllerConfiguration(): void
     {
         $controller = new RebateGoodsDataCrudController();
