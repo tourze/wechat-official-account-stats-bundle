@@ -24,7 +24,6 @@ final class MessageSendHourDataCrudControllerTest extends AbstractEasyAdminContr
      */
     protected function getControllerService(): AbstractCrudController
     {
-        /** @phpstan-ignore-next-line */
         return self::getService(MessageSendHourDataCrudController::class);
     }
 

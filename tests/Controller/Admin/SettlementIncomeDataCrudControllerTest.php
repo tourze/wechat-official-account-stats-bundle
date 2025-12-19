@@ -24,7 +24,6 @@ final class SettlementIncomeDataCrudControllerTest extends AbstractEasyAdminCont
      */
     protected function getControllerService(): AbstractCrudController
     {
-        /** @phpstan-ignore-next-line */
         return self::getService(SettlementIncomeDataCrudController::class);
     }
 

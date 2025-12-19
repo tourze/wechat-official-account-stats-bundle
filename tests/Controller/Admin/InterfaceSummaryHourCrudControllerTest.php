@@ -24,7 +24,6 @@ final class InterfaceSummaryHourCrudControllerTest extends AbstractEasyAdminCont
      */
     protected function getControllerService(): AbstractCrudController
     {
-        /** @phpstan-ignore-next-line */
         return self::getService(InterfaceSummaryHourCrudController::class);
     }
 

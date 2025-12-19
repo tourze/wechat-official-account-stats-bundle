@@ -24,7 +24,6 @@ final class ImageTextStatisticsHourCrudControllerTest extends AbstractEasyAdminC
      */
     protected function getControllerService(): AbstractCrudController
     {
-        /** @phpstan-ignore-next-line */
         return self::getService(ImageTextStatisticsHourCrudController::class);
     }
 

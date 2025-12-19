@@ -24,7 +24,6 @@ final class RebateGoodsDataCrudControllerTest extends AbstractEasyAdminControlle
      */
     protected function getControllerService(): AbstractCrudController
     {
-        /** @phpstan-ignore-next-line */
         return self::getService(RebateGoodsDataCrudController::class);
     }
 

@@ -24,7 +24,6 @@ final class ImageTextShareDataHourCrudControllerTest extends AbstractEasyAdminCo
      */
     protected function getControllerService(): AbstractCrudController
     {
-        /** @phpstan-ignore-next-line */
         return self::getService(ImageTextShareDataHourCrudController::class);
     }
 
